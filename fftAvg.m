@@ -37,7 +37,7 @@ for dataset = datasets
     for channel = channels
         sum = zeros(1, n, 'single');
         
-        for index = 1:interval:components
+        for index = 1:components
             last = index * n;
             first = last - (n - 1);
             x = ALLEEG(dataset).data(channel, first:last);
