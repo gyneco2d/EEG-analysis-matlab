@@ -54,7 +54,7 @@ for dataset = datasets
     end
     legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
     xlim([0 15]);
-    ylim([0 30000]);
+    ylim([0 70000]);
     xlabel('Frequency[Hz]');
     ylabel('Power');
     title(ALLEEG(dataset).setname);
@@ -77,7 +77,7 @@ for key = keys(datasetAvgs)
 end
 legend(keys(datasetAvgs), 'Location', 'northeast');
 xlim([0 15]);
-ylim([0 30000]);
+ylim([0 70000]);
 xlabel('Frequency[Hz]');
 ylabel('Power');
 title('average per dataset');
