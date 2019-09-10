@@ -3,6 +3,10 @@ datasets = input(prompt);
 if isempty(datasets)
     datasets = [1, 2];
 end
+if length(datasets) ~= 2
+    disp('Select 2 datasets')
+    return
+end
 
 % prompt = 'Sampling frequency(Hz) [default: 2048]: ';
 % fs = input(prompt);
@@ -24,9 +28,9 @@ if isempty(channels)
 end
 
 prompt = 'Target frequency [default: 10]: ';
-targetFreq = input(prompt);
-if isempty(targetFreq)
-    targetFreq = 10;
+targetFreqs = input(prompt);
+if isempty(targetFreqs)
+    targetFreqs = 10;
 end
 
 for dataset = datasets
@@ -35,29 +39,55 @@ for dataset = datasets
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
     components = totalTime / interval;
 
-    targetFreqIndex = 0;
+    % Collect target frequency indexes.
+    targetFreqIndex = [];
     for index = 1:length(f)
-        if f(index) == targetFreq
-            targetFreqIndex = index;
+        for freq = targetFreqs
+            if f(index) == freq
+                targetFreqIndex = horzcat(targetFreqIndex, index);
+            end
         end
     end
 
     targetPower(dataset).name = ALLEEG(dataset).setname;
-    targetPower(dataset).power = [];
 
     for channel = channels
+        % Initialize structure array
+        channelname = ['channel', num2str(channel)];
+        for index = targetFreqs
+            frequency = ['freq', num2str(index), 'hz'];
+            targetPower(dataset).(channelname).(frequency) = [];
+        end
+
         for index = 1:components
             last = index * n;
             first = last - (n - 1);
             x = ALLEEG(dataset).data(channel, first:last);
             y = fft(x);
             power = abs(y).^2/n;
-            
-            targetPower(dataset).power = horzcat(targetPower(dataset).power, power(targetFreqIndex));
+
+            for freqIndex = targetFreqIndex
+                frequency = ['freq', num2str(f(freqIndex)), 'hz'];
+                targetPower(dataset).(channelname).(frequency) = horzcat(targetPower(dataset).(channelname).(frequency), power(freqIndex));
+            end
         end
     end
 end
 
-[h, p, ci, stats] = ttest2(targetPower(dataset1).power, targetPower(dataset2).power);
+figure;
+for channel = channels
+    pCollection = [];
+    channelname = ['channel', num2str(channel)];
+    for freq = targetFreqs
+        frequency = ['freq', num2str(freq), 'hz'];
+        set1 = targetPower(datasets(1)).(channelname).(frequency);
+        set2 = targetPower(datasets(2)).(channelname).(frequency);
+        [h, p, ci, stats] = ttest2(set1, set2);
+        pCollection = horzcat(pCollection, p);
+    end
+    hold on;
+    plot(pCollection);
+end
+legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
+title(channelname);
 disp([newline, ALLEEG(dataset1).setname, ' and ', ALLEEG(dataset2).setname, ' compared']);
-disp(['Check the following variables', newline, '  h, p, ci, stats']);
