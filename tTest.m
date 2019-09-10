@@ -1,13 +1,7 @@
-disp('Select the dataset to compare');
-prompt = 'Datasets1 [default: 1]: ';
-dataset1 = input(prompt);
-if isempty(dataset1)
-    dataset1 = 1;
-end
-prompt = 'Datasets2 [default: 2]: ';
-dataset2 = input(prompt);
-if isempty(dataset2)
-    dataset2 = 2;
+prompt = 'Select the datasets to compare [default: 1, 2]: ';
+datasets = input(prompt);
+if isempty(datasets)
+    datasets = [1, 2];
 end
 
 % prompt = 'Sampling frequency(Hz) [default: 2048]: ';
