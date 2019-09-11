@@ -90,4 +90,4 @@ for channel = channels
 end
 legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
 title(channelname);
-disp([newline, ALLEEG(dataset1).setname, ' and ', ALLEEG(dataset2).setname, ' compared']);
+disp([newline, ALLEEG(datasets(1)).setname, ' and ', ALLEEG(datasets(2)).setname, ' compared']);
