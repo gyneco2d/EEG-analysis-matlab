@@ -33,6 +33,7 @@ if isempty(targetFreqs)
     targetFreqs = 10;
 end
 
+% Collect data by fft
 for dataset = datasets
     n = fs * interval;
     f = (0:n-1)*(fs/n);
@@ -74,20 +75,25 @@ for dataset = datasets
     end
 end
 
+% Test for each frequency
 figure;
-for channel = channels
-    pCollection = [];
-    channelname = ['channel', num2str(channel)];
-    for freq = targetFreqs
-        frequency = ['freq', num2str(freq), 'hz'];
-        set1 = targetPower(datasets(1)).(channelname).(frequency);
-        set2 = targetPower(datasets(2)).(channelname).(frequency);
-        [h, p, ci, stats] = ttest2(set1, set2);
-        pCollection = horzcat(pCollection, p);
+pValues = [];
+for freq = targetFreqs
+    frequency = ['freq', num2str(freq), 'hz'];
+    set1 = [];
+    set2 = [];
+    for channel = channels
+        channelname = ['channel', num2str(channel)];
+        set1 = horzcat(set1, targetPower(datasets(1)).(channelname).(frequency));
+        set2 = horzcat(set2, targetPower(datasets(2)).(channelname).(frequency));
     end
-    hold on;
-    plot(pCollection);
+    [h, p] = ttest2(set1, set2);
+    pValues = horzcat(pValues, p);
+    disp([newline, num2str(freq), 'Hz']);
+    disp(['  h = ', num2str(h)]);
+    disp(['  p = ', num2str(p)]);
 end
-legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
-title(channelname);
-disp([newline, ALLEEG(datasets(1)).setname, ' and ', ALLEEG(datasets(2)).setname, ' compared']);
+plot(targetFreqs, pValues);
+xlabel('Frequency[Hz]');
+ylabel('P-value');
+title('P-value for each frequency');
