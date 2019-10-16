@@ -54,9 +54,9 @@ for dataset = datasets
     end
     legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
     xlim([0 15]);
-    ylim([0 70000]);
+    ylim([0 100000]);
     xlabel('Frequency[Hz]');
-    ylabel('Power');
+    ylabel('Power[uV]');
     title(ALLEEG(dataset).setname);
     
     channelAvg = sumOfChannels / length(channels);
@@ -77,7 +77,7 @@ for key = keys(datasetAvgs)
 end
 legend(keys(datasetAvgs), 'Location', 'northeast');
 xlim([0 15]);
-ylim([0 70000]);
+ylim([0 100000]);
 xlabel('Frequency[Hz]');
-ylabel('Power');
+ylabel('Power[uV]');
 title('average per dataset');
