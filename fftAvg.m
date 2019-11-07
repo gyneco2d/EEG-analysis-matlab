@@ -4,11 +4,6 @@ if isempty(datasets)
     datasets = 1;
 end
 
-% prompt = 'Sampling frequency(Hz) [default: 2048]: ';
-% fs = input(prompt);
-% if isempty(fs)
-%     fs = 2048;
-% end
 fs = 2048;
 
 prompt = 'Interval(sec) [default: 1]: ';
@@ -17,11 +12,10 @@ if isempty(interval)
     interval = 1;
 end
 
-prompt = 'Channel numbers: ';
+prompt = 'Channel numbers [default: 14:18]: ';
 channels = input(prompt);
 if isempty(channels)
-    disp('Invalid');
-    return;
+    channels = [14:18];
 end
 
 datasetAvgs = containers.Map('KeyType', 'char', 'ValueType', 'any');
@@ -61,13 +55,6 @@ for dataset = datasets
     
     channelAvg = sumOfChannels / length(channels);
     datasetAvgs(ALLEEG(dataset).setname) = channelAvg;
-%     figure;
-%     plot(f, channelAvg);
-%     xlim([0 15]);
-%     ylim([0 30000]);
-%     xlabel('Frequency[Hz]');
-%     ylabel('Power');
-%     title([ALLEEG(dataset).setname, ' average']);
 end
 
 figure;
