@@ -8,17 +8,12 @@ if length(datasets) ~= 2
     return
 end
 
-% prompt = 'Sampling frequency(Hz) [default: 2048]: ';
-% fs = input(prompt);
-% if isempty(fs)
-%     fs = 2048;
-% end
 fs = 2048;
 
-prompt = 'Interval(sec) [default: 1]: ';
+prompt = 'Interval(sec) [default: 2]: ';
 interval = input(prompt);
 if isempty(interval)
-    interval = 1;
+    interval = 2;
 end
 
 prompt = 'Channel numbers [default: all]: ';
@@ -27,10 +22,10 @@ if isempty(channels)
     channels = [1:32];
 end
 
-prompt = 'Target frequency [default: 10]: ';
+prompt = 'Target frequency [default: 8:13]: ';
 targetFreqs = input(prompt);
 if isempty(targetFreqs)
-    targetFreqs = 10;
+    targetFreqs = [8:13];
 end
 
 % Collect data by fft

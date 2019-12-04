@@ -6,10 +6,10 @@ end
 
 fs = 2048;
 
-prompt = 'Interval(sec) [default: 1]: ';
+prompt = 'Interval(sec) [default: 2]: ';
 interval = input(prompt);
 if isempty(interval)
-    interval = 1;
+    interval = 2;
 end
 
 prompt = 'Channel numbers [default: 13:18]: ';
@@ -76,4 +76,4 @@ end
 legend(setnames, 'Location', 'northeast');
 xlabel('Channel');
 ylabel('Power[uV]');
-title('average per channel');
+title('alpha-band power per channel');
