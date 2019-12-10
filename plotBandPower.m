@@ -35,16 +35,7 @@ for dataset = datasets
     components = totalTime / interval;
     sumOfChannels = zeros(1, n, 'single');
 
-    % Collect target frequency indexes
-    for index = 1:length(f)
-        if f(index) == targetFreqs(1)
-            first = index;
-        end
-        if f(index) == targetFreqs(end)
-            last = index;
-        end
-    end
-    targetFreqIndex = [first:last];
+    targetFreqIndex = calcFreqIndex(targetFreqs, f);
 
     % Initialize structure array
     targetBandPower(dataset).name = ALLEEG(dataset).setname;
