@@ -1,31 +1,27 @@
+% t-Test two datasets for alpha band
+
+% -- Initialize --
+% sampling frequency : 2048Hz
+fs = 2048;
+% fft interval : 2sec
+interval = 2;
+% alpha wave band : 8 - 13Hz
+alphaBand = [8:13];
+
 prompt = 'Select the datasets to compare [default: 1, 2]: ';
 datasets = input(prompt);
 if isempty(datasets)
     datasets = [1, 2];
-end
-if length(datasets) ~= 2
-    disp('Select 2 datasets')
-    return
-end
-
-fs = 2048;
-
-prompt = 'Interval(sec) [default: 2]: ';
-interval = input(prompt);
-if isempty(interval)
-    interval = 2;
+elseif ~isnumeric(datasets)
+    error('Input must be a numeric');
+elseif length(datasets) ~= 2
+    error('Select 2 datasets');
 end
 
 prompt = 'Channel numbers [default: all]: ';
 channels = input(prompt);
 if isempty(channels)
     channels = [1:32];
-end
-
-prompt = 'Target frequency [default: 8:13]: ';
-targetFreqs = input(prompt);
-if isempty(targetFreqs)
-    targetFreqs = [8:13];
 end
 
 % Collect data by fft
@@ -38,7 +34,7 @@ for dataset = datasets
     % Collect target frequency indexes.
     targetFreqIndex = [];
     for index = 1:length(f)
-        for freq = targetFreqs
+        for freq = alphaBand
             if f(index) == freq
                 targetFreqIndex = horzcat(targetFreqIndex, index);
             end
@@ -50,14 +46,14 @@ for dataset = datasets
     for channel = channels
         % Initialize structure array
         channelname = ['channel', num2str(channel)];
-        for index = targetFreqs
+        for index = alphaBand
             frequency = ['freq', num2str(index), 'hz'];
             targetPower(dataset).(channelname).(frequency) = [];
         end
 
-        for index = 1:components
-            last = index * n;
-            first = last - (n - 1);
+        for component = 1:components
+            first = (component-1)*n + 1;
+            last = first + (n-1);
             x = ALLEEG(dataset).data(channel, first:last);
             y = fft(x);
             power = abs(y).^2/n;
@@ -73,7 +69,7 @@ end
 % Test for each frequency
 figure;
 pValues = [];
-for freq = targetFreqs
+for freq = alphaBand
     frequency = ['freq', num2str(freq), 'hz'];
     set1 = [];
     set2 = [];
@@ -88,7 +84,7 @@ for freq = targetFreqs
     disp(['  h = ', num2str(h)]);
     disp(['  p = ', num2str(p)]);
 end
-plot(targetFreqs, pValues);
+plot(alphaBand, pValues);
 xlabel('Frequency[Hz]');
 ylabel('P-value');
 title('P-value for each frequency');

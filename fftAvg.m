@@ -1,10 +1,16 @@
+% Plot frequency distribution
+
+% -- Initialize --
+% sampling frequency : 2048Hz
+fs = 2048;
+
 prompt = 'Datasets [default: 1]: ';
 datasets = input(prompt);
 if isempty(datasets)
     datasets = 1;
+elseif ~isnumeric(datasets)
+    error('Input must be a numeric');
 end
-
-fs = 2048;
 
 prompt = 'Interval(sec) [default: 2]: ';
 interval = input(prompt);
@@ -31,9 +37,9 @@ for dataset = datasets
     for channel = channels
         sum = zeros(1, n, 'single');
         
-        for index = 1:components
-            last = index * n;
-            first = last - (n - 1);
+        for component = 1:components
+            first = (component-1)*n + 1;
+            last = first + (n-1);
             x = ALLEEG(dataset).data(channel, first:last);
             y = fft(x);
             power = abs(y).^2/n;

@@ -34,15 +34,15 @@ for dataset = datasets
     alphaPower(dataset).raw = zeros(32, length(alphaBandIndex)*components, 'single');
 
     for channel = channels
-        for index = 1:components
-            last = index * n;
-            first = last - (n - 1);
+        for component = 1:components
+            first = (component-1)*n + 1;
+            last = first + (n-1);
             x = ALLEEG(dataset).data(channel, first:last);
             y = fft(x);
             power = abs(y).^2/n;
 
             for i = 1:length(alphaBandIndex)
-                alphaPower(dataset).raw(channel, i + (index-1)*length(alphaBandIndex)) = power(alphaBandIndex(i));
+                alphaPower(dataset).raw(channel, i + (component-1)*length(alphaBandIndex)) = power(alphaBandIndex(i));
             end
         end
     end
