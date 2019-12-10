@@ -1,50 +1,39 @@
-prompt = 'Datasets [default: 1]: ';
+% Plot comparison of alpha wave band power for each electrode
+
+% -- Initialize --
+% sampling frequency : 2048Hz
+fs = 2048;
+% fft interval : 2sec
+interval = 2;
+% alpha wave band : 8 - 13Hz
+alphaBand = [8:13];
+
+prompt = 'Datasets [default: 1:4]: ';
 datasets = input(prompt);
 if isempty(datasets)
-    datasets = 1;
+    datasets = [1:4];
+elseif ~isnumeric(datasets)
+    error('Input must be a numeric');
 end
 
-fs = 2048;
-
-prompt = 'Interval(sec) [default: 2]: ';
-interval = input(prompt);
-if isempty(interval)
-    interval = 2;
-end
-
-prompt = 'Channel numbers [default: 13:18]: ';
+prompt = 'Channel numbers [default: 14:18]: ';
 channels = input(prompt);
 if isempty(channels)
-    channels = [13:18];
+    channels = [14:18];
+elseif ~isnumeric(channels)
+    error('Input must be a numeric');
 end
 
-prompt = 'Target frequency band [default: 8:13]: ';
-targetFreqs = input(prompt);
-if isempty(targetFreqs)
-    targetFreqs = [8:13];
-end
-
-datasetAvgs = containers.Map('KeyType', 'char', 'ValueType', 'any');
-
-figure;
-means = [];
 for dataset = datasets
     n = fs * interval;
     f = (0:n-1)*(fs/n);
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
     components = totalTime / interval;
-    sumOfChannels = zeros(1, n, 'single');
+    alphaBandIndex = calcFreqIndex(alphaBand, f);
+    alphaPower(dataset).name = ALLEEG(dataset).setname;
+    alphaPower(dataset).raw = zeros(32, length(alphaBandIndex)*components, 'single');
 
-    targetFreqIndex = calcFreqIndex(targetFreqs, f);
-
-    % Initialize structure array
-    targetBandPower(dataset).name = ALLEEG(dataset).setname;
-
-    d_means = [];
     for channel = channels
-        channelname = ['channel', num2str(channel)];
-        targetBandPower(dataset).(channelname) = [];
-
         for index = 1:components
             last = index * n;
             first = last - (n - 1);
@@ -52,17 +41,25 @@ for dataset = datasets
             y = fft(x);
             power = abs(y).^2/n;
 
-            targetBandPower(dataset).(channelname) = horzcat(targetBandPower(dataset).(channelname), power(targetFreqIndex));
+            for i = 1:length(alphaBandIndex)
+                alphaPower(dataset).raw(channel, i + (index-1)*length(alphaBandIndex)) = power(alphaBandIndex(i));
+            end
         end
-        d_means = vertcat(d_means, mean(targetBandPower(dataset).(channelname)));
     end
-    means = horzcat(means, d_means);
 end
 
-bar(channels, means);
+meanValue = [];
+for dataset = datasets
+    meanPerDataset = [];
+    for channel = channels
+        meanPerDataset = vertcat(meanPerDataset, mean(alphaPower(dataset).raw(channel, :)));
+    end
+    meanValue = horzcat(meanValue, meanPerDataset);
+end
+bar(channels, meanValue);
 setnames = {};
-for index = datasets
-    setnames = horzcat(setnames, ALLEEG(index).setname);
+for dataset = datasets
+    setnames = horzcat(setnames, ALLEEG(dataset).setname);
 end
 legend(setnames, 'Location', 'northeast');
 xlabel('Channel');
