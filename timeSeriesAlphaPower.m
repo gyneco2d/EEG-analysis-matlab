@@ -1,4 +1,4 @@
-% Plot alpha wave band power in time series
+% Plot alpha wave band power in time series with 1 second overlap
 
 % -- Initialize --
 % sampling frequency : 2048Hz
@@ -24,18 +24,35 @@ elseif ~isnumeric(channels)
     error('Input must be a numeric');
 end
 
+prompt = 'Allow overlap? (y/n) [default: y]: ';
+overlap = input(prompt);
+if isempty(overlap)
+    overlap = 'y';
+elseif ~(strcmp(overlap, 'y') || strcmp(overlap, 'n'))
+    error('Input must be (y/n)');
+end
+
 for dataset = datasets
     n = fs * interval;
     f = (0:n-1)*(fs/n);
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
-    components = totalTime / interval;
+    if strcmp(overlap, 'y')
+        components = totalTime - 1;
+    else
+        components = totalTime / interval;
+    end
     alphaBandIndex = calcFreqIndex(alphaBand, f);
     alphaPower(dataset).name = ALLEEG(dataset).setname;
     alphaPower(dataset).meansquare = zeros(32, components, 'single');
 
     for channel = channels
         for component = 1:components
-            first = (component-1)*n + 1;
+            if strcmp(overlap, 'y')
+                stepsize = n / 2;
+            else
+                stepsize = n;
+            end
+            first = (component-1)*stepsize + 1;
             last = first + (n-1);
             x = ALLEEG(dataset).data(channel, first:last);
             y = fft(x);
