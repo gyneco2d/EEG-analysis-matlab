@@ -52,10 +52,12 @@ meanValue = [];
 for dataset = datasets
     meanPerDataset = [];
     for channel = channels
-        meanPerDataset = vertcat(meanPerDataset, mean(alphaPower(dataset).raw(channel, :)));
+        alphaBandPower = sqrt(mean(alphaPower(dataset).raw(channel, :)));
+        meanPerDataset = vertcat(meanPerDataset, alphaBandPower);
     end
     meanValue = horzcat(meanValue, meanPerDataset);
 end
+figure;
 bar(channels, meanValue);
 setnames = {};
 for dataset = datasets
