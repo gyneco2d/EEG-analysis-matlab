@@ -31,7 +31,7 @@ for dataset = datasets
     components = totalTime / interval;
     alphaBandIndex = calcFreqIndex(alphaBand, f);
     alphaPower(dataset).name = ALLEEG(dataset).setname;
-    alphaPower(dataset).data = zeros(32, components, 'single');
+    alphaPower(dataset).meansquare = zeros(32, components, 'single');
 
     for channel = channels
         for index = 1:components
@@ -41,7 +41,7 @@ for dataset = datasets
             y = fft(x);
             power = abs(y).^2/n;
 
-            alphaPower(dataset).data(channel, index) = sqrt(mean(power(alphaBandIndex)));
+            alphaPower(dataset).meansquare(channel, index) = sqrt(mean(power(alphaBandIndex)));
         end
     end
 end
@@ -51,7 +51,7 @@ hold on;
 for channel = channels
     continuous = [];
     for dataset = datasets
-        continuous = horzcat(continuous, alphaPower(dataset).data(channel, :));
+        continuous = horzcat(continuous, alphaPower(dataset).meansquare(channel, :));
     end
     plot(continuous);
 end
