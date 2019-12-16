@@ -7,6 +7,8 @@ fs = 2048;
 interval = 2;
 % alpha wave band : 8 - 13Hz
 alphaBand = [8:13];
+% number of components to average for smoothing
+componentInSet = 20;
 
 prompt = 'Datasets [default: 1]: ';
 datasets = input(prompt);
@@ -44,8 +46,10 @@ for dataset = datasets
         stepsize = n;
     end
     alphaBandIndex = calcFreqIndex(alphaBand, f);
+    sets = fix(components / componentInSet);
     alphaPower(dataset).name = ALLEEG(dataset).setname;
     alphaPower(dataset).meansquare = zeros(32, components, 'single');
+    alphaPower(dataset).smoothing = zeros(32, sets, 'single');
 
     for channel = channels
         for component = 1:components
@@ -57,6 +61,12 @@ for dataset = datasets
 
             alphaPower(dataset).meansquare(channel, component) = sqrt(mean(power(alphaBandIndex)));
         end
+
+        for index = 1:sets
+            first = (index-1)*componentInSet + 1;
+            last = first + (componentInSet-1);
+            alphaPower(dataset).smoothing(channel, index) = mean(alphaPower(dataset).meansquare(channel, first:last));
+        end
     end
 end
 
@@ -65,7 +75,7 @@ hold on;
 for channel = channels
     continuous = [];
     for dataset = datasets
-        continuous = horzcat(continuous, alphaPower(dataset).meansquare(channel, :));
+        continuous = horzcat(continuous, alphaPower(dataset).smoothing(channel, :));
     end
     plot(continuous);
 end
