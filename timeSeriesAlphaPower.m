@@ -24,7 +24,7 @@ elseif ~isnumeric(channels)
     error('Input must be a numeric');
 end
 
-prompt = 'Allow overlap? (y/n) [default: y]: ';
+prompt = 'Calculate overlap? (y/n) [default: y]: ';
 overlap = input(prompt);
 if isempty(overlap)
     overlap = 'y';
@@ -32,14 +32,16 @@ elseif ~(strcmp(overlap, 'y') || strcmp(overlap, 'n'))
     error('Input must be (y/n)');
 end
 
+n = fs * interval;
+f = (0:n-1)*(fs/n);
 for dataset = datasets
-    n = fs * interval;
-    f = (0:n-1)*(fs/n);
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
     if strcmp(overlap, 'y')
-        components = totalTime - 1;
+        components = fix(totalTime - 1);
+        stepsize = n / 2;
     else
-        components = totalTime / interval;
+        components = fix(totalTime / interval);
+        stepsize = n;
     end
     alphaBandIndex = calcFreqIndex(alphaBand, f);
     alphaPower(dataset).name = ALLEEG(dataset).setname;
@@ -47,11 +49,6 @@ for dataset = datasets
 
     for channel = channels
         for component = 1:components
-            if strcmp(overlap, 'y')
-                stepsize = n / 2;
-            else
-                stepsize = n;
-            end
             first = (component-1)*stepsize + 1;
             last = first + (n-1);
             x = ALLEEG(dataset).data(channel, first:last);
@@ -75,3 +72,9 @@ end
 legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
 xlabel('Time');
 ylabel('Power');
+status = [];
+for dataset = datasets
+    name = strsplit(ALLEEG(dataset).setname, ' - ');
+    status = horzcat(status, name(end));
+end
+title(append('Alpha wave band power transition (', join(status, '-'), ')'));

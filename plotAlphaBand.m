@@ -24,9 +24,9 @@ elseif ~isnumeric(channels)
     error('Input must be a numeric');
 end
 
+n = fs * interval;
+f = (0:n-1)*(fs/n);
 for dataset = datasets
-    n = fs * interval;
-    f = (0:n-1)*(fs/n);
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
     components = fix(totalTime / interval);
     alphaBandIndex = calcFreqIndex(alphaBand, f);

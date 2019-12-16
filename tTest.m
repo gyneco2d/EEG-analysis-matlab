@@ -24,10 +24,9 @@ if isempty(channels)
     channels = [1:32];
 end
 
-% Collect data by fft
+n = fs * interval;
+f = (0:n-1)*(fs/n);
 for dataset = datasets
-    n = fs * interval;
-    f = (0:n-1)*(fs/n);
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
     components = totalTime / interval;
 

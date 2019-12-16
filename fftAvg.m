@@ -26,14 +26,14 @@ end
 
 datasetAvgs = containers.Map('KeyType', 'char', 'ValueType', 'any');
 
+n = fs * interval;
+f = (0:n-1)*(fs/n);
 for dataset = datasets
-    n = fs * interval;
-    f = (0:n-1)*(fs/n);
     totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
-    components = totalTime / interval;
+    components = fix(totalTime / interval);
     sumOfChannels = zeros(1, n, 'single');
 
-    figure;
+    figure('Name', ALLEEG(dataset).setname, 'NumberTitle', 'off');
     for channel = channels
         sum = zeros(1, n, 'single');
         
@@ -53,7 +53,7 @@ for dataset = datasets
         plot(f, componentAvg);
     end
     legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
-    xlim([0 15]);
+    xlim([6 15]);
     ylim([0 100000]);
     xlabel('Frequency[Hz]');
     ylabel('Power[uV]');
@@ -63,13 +63,13 @@ for dataset = datasets
     datasetAvgs(ALLEEG(dataset).setname) = channelAvg;
 end
 
-figure;
+figure('Name', 'Compare datasets', 'NumberTitle', 'off');
 for key = keys(datasetAvgs)
     hold on;
     plot(f, datasetAvgs(char(key)));
 end
 legend(keys(datasetAvgs), 'Location', 'northeast');
-xlim([0 15]);
+xlim([6 15]);
 ylim([0 100000]);
 xlabel('Frequency[Hz]');
 ylabel('Power[uV]');
