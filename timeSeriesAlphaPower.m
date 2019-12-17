@@ -1,14 +1,4 @@
-% Plot alpha wave band power in time series with 1 second overlap
-
-% -- Initialize --
-% sampling frequency : 2048Hz
-fs = 2048;
-% fft interval : 2sec
-interval = 2;
-% alpha wave band : 8 - 13Hz
-alphaBand = [8:13];
-% number of components to average for smoothing
-componentInSet = 20;
+% Plot alpha band power in time series with 1 second overlap
 
 prompt = 'Datasets [default: 1]: ';
 datasets = input(prompt);
@@ -26,56 +16,12 @@ elseif ~isnumeric(channels)
     error('Input must be a numeric');
 end
 
-prompt = 'Calculate overlap? (y/n) [default: y]: ';
-overlap = input(prompt);
-if isempty(overlap)
-    overlap = 'y';
-elseif ~(strcmp(overlap, 'y') || strcmp(overlap, 'n'))
-    error('Input must be (y/n)');
-end
-
-n = fs * interval;
-f = (0:n-1)*(fs/n);
-for dataset = datasets
-    totalTime = length(ALLEEG(dataset).data(channels(1), :)) / fs;
-    if strcmp(overlap, 'y')
-        components = fix(totalTime - 1);
-        stepsize = n / 2;
-    else
-        components = fix(totalTime / interval);
-        stepsize = n;
-    end
-    alphaBandIndex = calcFreqIndex(alphaBand, f);
-    sets = fix(components / componentInSet);
-    alphaPower(dataset).name = ALLEEG(dataset).setname;
-    alphaPower(dataset).meansquare = zeros(32, components, 'single');
-    alphaPower(dataset).smoothing = zeros(32, sets, 'single');
-
-    for channel = channels
-        for component = 1:components
-            first = (component-1)*stepsize + 1;
-            last = first + (n-1);
-            x = ALLEEG(dataset).data(channel, first:last);
-            y = fft(x);
-            power = abs(y).^2/n;
-
-            alphaPower(dataset).meansquare(channel, component) = sqrt(mean(power(alphaBandIndex)));
-        end
-
-        for index = 1:sets
-            first = (index-1)*componentInSet + 1;
-            last = first + (componentInSet-1);
-            alphaPower(dataset).smoothing(channel, index) = mean(alphaPower(dataset).meansquare(channel, first:last));
-        end
-    end
-end
-
 figure;
 hold on;
 for channel = channels
     continuous = [];
     for dataset = datasets
-        continuous = horzcat(continuous, alphaPower(dataset).smoothing(channel, :));
+        continuous = horzcat(continuous, AlphaEEG(dataset).smoothing(channel, :));
     end
     plot(continuous);
 end
@@ -87,4 +33,4 @@ for dataset = datasets
     name = strsplit(ALLEEG(dataset).setname, ' - ');
     status = horzcat(status, name(end));
 end
-title(append('Alpha wave band power transition (', join(status, '-'), ')'));
+title(append('Alpha band power transition (', join(status, '-'), ')'));
