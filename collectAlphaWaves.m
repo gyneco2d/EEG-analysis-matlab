@@ -42,6 +42,7 @@ for dataset = datasets
     alphaBandIndex = calcFreqIndex(alphaBand, f);
     sets = fix(components / componentInSet);
     AlphaEEG(dataset).setname = ALLEEG(dataset).setname;
+    AlphaEEG(dataset).avgOfComponents = zeros(32, n);
     AlphaEEG(dataset).meansquare = zeros(32, components);
     AlphaEEG(dataset).smoothing = zeros(32, sets);
     AlphaEEG(dataset).raw = zeros(32, length(alphaBandIndex)*components);
@@ -54,12 +55,13 @@ for dataset = datasets
             y = fft(x);
             power = abs(y).^2/n;
 
+            AlphaEEG(dataset).avgOfComponents(channel, :) = AlphaEEG(dataset).avgOfComponents(channel, :) + power;
             for index = 1:length(alphaBandIndex)
                 AlphaEEG(dataset).raw(channel, index + (component-1)*length(alphaBandIndex)) = power(alphaBandIndex(index));
             end
             AlphaEEG(dataset).meansquare(channel, component) = sqrt(mean(power(alphaBandIndex)));
         end
-
+        AlphaEEG(dataset).avgOfComponents(channel, :) = AlphaEEG(dataset).avgOfComponents(channel, :) / components;
         for index = 1:sets
             first = (index-1)*componentInSet + 1;
             last = first + (componentInSet-1);
