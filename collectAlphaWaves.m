@@ -46,6 +46,7 @@ for dataset = datasets
     AlphaEEG(dataset).timeseries_rootmean = zeros(32, components);
     AlphaEEG(dataset).smoothing = zeros(32, sets);
     AlphaEEG(dataset).raw = zeros(32, length(alphaBandIndex)*components);
+    AlphaEEG(dataset).rootmean = zeros(32, 1);
 
     for channel = channels
         for component = 1:components
@@ -67,5 +68,6 @@ for dataset = datasets
             last = first + (componentInSet-1);
             AlphaEEG(dataset).smoothing(channel, index) = mean(AlphaEEG(dataset).timeseries_rootmean(channel, first:last));
         end
+        AlphaEEG(dataset).rootmean(channel, 1) = sqrt(mean(AlphaEEG(dataset).raw(channel, :)));
     end
 end
