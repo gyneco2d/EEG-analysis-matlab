@@ -43,7 +43,7 @@ for dataset = datasets
     sets = fix(components / componentInSet);
     AlphaEEG(dataset).setname = ALLEEG(dataset).setname;
     AlphaEEG(dataset).avgOfComponents = zeros(32, n);
-    AlphaEEG(dataset).meansquare = zeros(32, components);
+    AlphaEEG(dataset).timeseries_rootmean = zeros(32, components);
     AlphaEEG(dataset).smoothing = zeros(32, sets);
     AlphaEEG(dataset).raw = zeros(32, length(alphaBandIndex)*components);
 
@@ -59,13 +59,13 @@ for dataset = datasets
             for index = 1:length(alphaBandIndex)
                 AlphaEEG(dataset).raw(channel, index + (component-1)*length(alphaBandIndex)) = power(alphaBandIndex(index));
             end
-            AlphaEEG(dataset).meansquare(channel, component) = sqrt(mean(power(alphaBandIndex)));
+            AlphaEEG(dataset).timeseries_rootmean(channel, component) = sqrt(mean(power(alphaBandIndex)));
         end
         AlphaEEG(dataset).avgOfComponents(channel, :) = AlphaEEG(dataset).avgOfComponents(channel, :) / components;
         for index = 1:sets
             first = (index-1)*componentInSet + 1;
             last = first + (componentInSet-1);
-            AlphaEEG(dataset).smoothing(channel, index) = mean(AlphaEEG(dataset).meansquare(channel, first:last));
+            AlphaEEG(dataset).smoothing(channel, index) = mean(AlphaEEG(dataset).timeseries_rootmean(channel, first:last));
         end
     end
 end
