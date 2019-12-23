@@ -9,8 +9,6 @@ channels = [1:32];
 interval = 2;
 % alpha wave band : 8-13Hz
 alphaBand = [8:13];
-% number of components to average for smoothing
-componentInSet = 20;
 
 prompt = 'Datasets [default: 1:4]: ';
 datasets = input(prompt);
@@ -40,11 +38,9 @@ for dataset = datasets
         stepsize = n;
     end
     alphaBandIndex = calcFreqIndex(alphaBand, f);
-    sets = fix(components / componentInSet);
     AlphaEEG(dataset).setname = ALLEEG(dataset).setname;
     AlphaEEG(dataset).avgOfComponents = zeros(32, n);
     AlphaEEG(dataset).timeseries_rootmean = zeros(32, components);
-    AlphaEEG(dataset).smoothing = zeros(32, sets);
     AlphaEEG(dataset).raw = zeros(32, length(alphaBandIndex)*components);
     AlphaEEG(dataset).rootmean = zeros(32, 1);
 
@@ -63,11 +59,6 @@ for dataset = datasets
             AlphaEEG(dataset).timeseries_rootmean(channel, component) = sqrt(mean(power(alphaBandIndex)));
         end
         AlphaEEG(dataset).avgOfComponents(channel, :) = AlphaEEG(dataset).avgOfComponents(channel, :) / components;
-        for index = 1:sets
-            first = (index-1)*componentInSet + 1;
-            last = first + (componentInSet-1);
-            AlphaEEG(dataset).smoothing(channel, index) = mean(AlphaEEG(dataset).timeseries_rootmean(channel, first:last));
-        end
         AlphaEEG(dataset).rootmean(channel, 1) = sqrt(mean(AlphaEEG(dataset).raw(channel, :)));
     end
 end

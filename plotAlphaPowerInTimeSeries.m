@@ -1,9 +1,9 @@
-% Plot alpha band power in time series with 1 second overlap
+% Plot alpha band power in time series
 
-prompt = 'Datasets [default: 1]: ';
+prompt = 'Datasets [default: 1:4]: ';
 datasets = input(prompt);
 if isempty(datasets)
-    datasets = 1;
+    datasets = [1:4];
 elseif ~isnumeric(datasets)
     error('Input must be a numeric');
 end
@@ -16,14 +16,27 @@ elseif ~isnumeric(channels)
     error('Input must be a numeric');
 end
 
-figure;
-hold on;
+prompt = 'Window size [default: 10sec]: ';
+windowsize = input(prompt);
+if isempty(windowsize)
+    windowsize = 10;
+elseif ~isnumeric(windowsize)
+    error('Input must be a numeric');
+end
+
+% smoothing
+for dataset = datasets
+    for channel = channels
+        AlphaEEG(dataset).smoothdata(channel, :) = movmean(AlphaEEG(dataset).timeseries_rootmean(channel, :), windowsize);
+    end
+end
+
 for channel = channels
     continuous = [];
     for dataset = datasets
-        continuous = horzcat(continuous, AlphaEEG(dataset).smoothing(channel, :));
+        continuous = horzcat(continuous, AlphaEEG(dataset).smoothdata(channel, :));
     end
-    plot(continuous);
+    plot(1:length(continuous), continuous);
 end
 legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
 xlabel('Time');
