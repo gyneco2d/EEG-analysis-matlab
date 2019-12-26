@@ -3,7 +3,7 @@ function [eeg] = loadBdf(exportname, displayname, pattern)
     %             and split into '.mat' files for each state based on 'EEG.event'
     %
     % Usage:
-    %   >> loadBdf( ito, '伊藤', 0 );
+    %   >> loadBdf( ito, '伊藤', 0 );  % Open dialog to generate '.mat' file based on selected file
     %
     % Inputs:
     %   exportname  - [string] subject name
@@ -11,6 +11,9 @@ function [eeg] = loadBdf(exportname, displayname, pattern)
     %   pattern     - [0/1] order of sound source to be presented
     %                    0: baseline1, HR, CD, baseline2
     %                    1: baseline1, CD, HR, baseline2
+    %
+    % See also:
+    %   >> help eeg_checkset           % the EEG dataset structure
 
     % Confirm args
     clearvars -except exportname displayname pattern;
