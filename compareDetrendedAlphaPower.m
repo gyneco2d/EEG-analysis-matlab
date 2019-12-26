@@ -30,12 +30,13 @@ for iChannel = 1:length(channels)
     detrendedAlpha = vertcat(detrendedAlpha, detrend(rawAlpha(iChannel, :)) + mean(rawAlpha(iChannel, :)));
 end
 
-% Adjacent raw data and detrended data
-forPlot = [];
-for iChannel = 1:length(channels)
-    channelset = vertcat(rawAlpha(iChannel, :), detrendedAlpha(iChannel, :));
-    forPlot = vertcat(forPlot, channelset);
-end
-
 figure;
-bar([1:length(channels)*2], forPlot);
+bar(channels, detrendedAlpha);
+setnames = {};
+for dataset = datasets
+    setnames = horzcat(setnames, ALLEEG(dataset).setname);
+end
+legend(setnames, 'Location', 'northwest');
+xlabel('Channel');
+ylabel('Power[uV]');
+title('alpha-band power per channel');

@@ -41,6 +41,8 @@ function [eeg] = loadBdf(exportname, displayname, pattern)
     EEG = pop_biosig(strcat(filepath, filename), 'channels', [1:32], 'ref', 32);
     EEG = pop_reref(EEG, []);
     EEG.setname = displayname;
+    EEG.filename = filename;
+    EEG.filepath = filepath;
     EEG = eeg_checkset(EEG);
 
     % Apply a 0.5-90Hz bandpass filter to the data
