@@ -1,4 +1,4 @@
-function [eeg] = loadBdf(exportname, displayname, pattern)
+function loadBdf(exportname, displayname, pattern)
     % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
     %             and split into '.mat' files for each state based on 'EEG.event'
     %
