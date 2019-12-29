@@ -23,12 +23,9 @@ function loadBdf(exportname, displayname, pattern)
     fs = 2048;
     if pattern == 0
         status = {'baseline1', 'HR', 'CD', 'baseline2'};
-    else
-        status = {'baseline1', 'CD', 'HR', 'baseline2'};
-    end
-    if pattern == 0
         exportname = strcat(exportname, 'HRtoCD');
     else
+        status = {'baseline1', 'CD', 'HR', 'baseline2'};
         exportname = strcat(exportname, 'CDtoHR');
     end
 

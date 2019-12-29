@@ -21,7 +21,7 @@ for dataset = datasets
     figure('Name', string(setname(1)), 'NumberTitle', 'off');
     hold on;
     for channel = channels
-        plot(f, AlphaEEG(dataset).avgOfComponents(channel, :));
+        plot(f, AlphaEEG(dataset).freq_distribution(channel, :));
     end
     legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
     xlim([6 15]);
@@ -36,9 +36,9 @@ setname = strsplit(AlphaEEG(1).setname, ' - ');
 figure('Name', string(setname(1)), 'NumberTitle', 'off');
 hold on;
 for dataset = datasets
-    avgOfChannels = zeros(32, length(AlphaEEG(dataset).avgOfComponents(1, :)));
+    avgOfChannels = zeros(32, length(AlphaEEG(dataset).freq_distribution(1, :)));
     for channel = channels
-        avgOfChannels = avgOfChannels + AlphaEEG(dataset).avgOfComponents(channel, :);
+        avgOfChannels = avgOfChannels + AlphaEEG(dataset).freq_distribution(channel, :);
     end
     avgOfChannels = avgOfChannels / length(channels);
     plot(f, avgOfChannels);

@@ -26,7 +26,7 @@ function [AlphaEEG] = collectAlpha()
         stepsize = n / 2;
         alphaBandIndex = calcFreqIndex(alphaBand, f);
         AlphaEEG(iState).setname = ALLEEG(iState).setname;
-        AlphaEEG(iState).avgOfComponents = zeros(32, n);
+        AlphaEEG(iState).freq_distribution = zeros(32, n);
         AlphaEEG(iState).timeseries_rootmean = zeros(32, nComponent);
         AlphaEEG(iState).raw = zeros(32, length(alphaBandIndex)*nComponent);
         AlphaEEG(iState).rootmean = zeros(32, 1);
@@ -39,13 +39,13 @@ function [AlphaEEG] = collectAlpha()
                 y = fft(x);
                 power = abs(y).^2/n;
 
-                AlphaEEG(iState).avgOfComponents(channel, :) = AlphaEEG(iState).avgOfComponents(channel, :) + power;
+                AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) + power;
                 for iAlpha = 1:length(alphaBandIndex)
                     AlphaEEG(iState).raw(channel, iAlpha + (iComponent-1)*length(alphaBandIndex)) = power(alphaBandIndex(iAlpha));
                 end
                 AlphaEEG(iState).timeseries_rootmean(channel, iComponent) = sqrt(mean(power(alphaBandIndex)));
             end
-            AlphaEEG(iState).avgOfComponents(channel, :) = AlphaEEG(iState).avgOfComponents(channel, :) / nComponent;
+            AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) / nComponent;
             AlphaEEG(iState).rootmean(channel, 1) = sqrt(mean(AlphaEEG(iState).raw(channel, :)));
         end
     end
