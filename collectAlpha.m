@@ -26,6 +26,7 @@ function [AlphaEEG] = collectAlpha()
         stepsize = n / 2;
         alphaBandIndex = calcFreqIndex(alphaBand, f);
         AlphaEEG(iState).setname = ALLEEG(iState).setname;
+        AlphaEEG(iState).axis = f;
         AlphaEEG(iState).freq_distribution = zeros(32, n);
         AlphaEEG(iState).timeseries_rootmean = zeros(32, nComponent);
         AlphaEEG(iState).raw = zeros(32, length(alphaBandIndex)*nComponent);
