@@ -61,7 +61,7 @@ function loadBdf(exportname, displayname, pattern)
 
     % Export data before separation
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
-    save(strcat(filepath, exportname, '', '.mat'));
+    save(strcat(filepath, exportname, '', '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
     ALLEEG(1) = [];
 
     % Separate data for each state
@@ -81,6 +81,6 @@ function loadBdf(exportname, displayname, pattern)
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end
     
-    % Export separated by state
-    save(strcat(filepath, exportname, 'separated', '.mat'));
+    % Export data separated by state
+    save(strcat(filepath, exportname, 'separated', '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
 end
