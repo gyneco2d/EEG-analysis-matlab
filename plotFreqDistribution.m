@@ -8,7 +8,7 @@ function plotFreqDistribution(AlphaEEG, channels)
     %   AlphaEEG - [structure] structure created by collectAlpha()
     %   channels - [integer array] electrode number used for plotting
 
-    % Initialize
+    % Confirm args
     if ~exist('channels', 'var'); channels = [14:18]; end
 
     setname = strsplit(AlphaEEG(1).setname, ' - ');

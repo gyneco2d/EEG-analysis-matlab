@@ -8,23 +8,16 @@ function [AlphaEEG] = collectAlpha()
     end
     load(strcat(filepath, filename));
 
-    % Initialize
-    % sampling frequency: 2048Hz
-    fs = 2048;
-    % electrode channels
-    channels = [1:32];
-    % fft interval: 2sec
-    interval = 2;
-    % alpha wave band: 8-13Hz
-    alphaBand = [8:13];
+    import constants.BioSemiConstants;
+    import constants.ProjectConstants;
 
-    n = fs * interval;
-    f = (0:n-1)*(fs/n);
+    n = BioSemiConstants.Fs * ProjectConstants.Interval;
+    f = (0:n-1)*(BioSemiConstants.Fs/n);
     for iState = 1:size(ALLEEG, 2)
-        totalTime = length(ALLEEG(iState).data(1, :)) / fs;
+        totalTime = length(ALLEEG(iState).data(1, :)) / BioSemiConstants.Fs;
         nComponent = fix(totalTime - 1);
         stepsize = n / 2;
-        alphaBandIndex = calcFreqIndex(alphaBand, f);
+        alphaBandIndex = calcFreqIndex(ProjectConstants.AlphaBand, f);
         AlphaEEG(iState).setname = ALLEEG(iState).setname;
         AlphaEEG(iState).axis = f;
         AlphaEEG(iState).freq_distribution = zeros(32, n);
@@ -32,7 +25,7 @@ function [AlphaEEG] = collectAlpha()
         AlphaEEG(iState).raw = zeros(32, length(alphaBandIndex)*nComponent);
         AlphaEEG(iState).rootmean = zeros(32, 1);
 
-        for channel = channels
+        for channel = BioSemiConstants.Electrodes
             for iComponent = 1:nComponent
                 first = (iComponent-1)*stepsize + 1;
                 last = first + (n-1);

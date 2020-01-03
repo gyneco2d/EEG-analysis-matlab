@@ -19,8 +19,6 @@ function loadBdf(exportname, displayname, pattern)
     clearvars -except exportname displayname pattern;
     if ~ischar(exportname); error('exportname must be char'); end
     if ~isnumeric(pattern); error('pattern must be numeric'); end
-    % Initialize
-    fs = 2048;
     if pattern == 0
         status = {'baseline1', 'HR', 'CD', 'baseline2'};
         exportname = strcat(exportname, 'HRtoCD');
@@ -35,7 +33,7 @@ function loadBdf(exportname, displayname, pattern)
         error('no files selected');
     end
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
-    EEG = pop_biosig(strcat(filepath, filename), 'channels', [1:32], 'ref', 32);
+    EEG = pop_biosig(strcat(filepath, filename), 'channels', constants.BioSemiConstants.Electrodes, 'ref', 32);
     EEG = pop_reref(EEG, []);
     EEG.setname = displayname;
     EEG.filename = filename;
@@ -50,7 +48,7 @@ function loadBdf(exportname, displayname, pattern)
     previous = EEG.event(1).latency;
     invalids = [];
     for index = 2:length(EEG.event)
-        if EEG.event(index).latency - previous < fs
+        if EEG.event(index).latency - previous < constants.BioSemiConstants.Fs
             invalids = [invalids index];
         else
             previous = EEG.event(index).latency;
@@ -75,7 +73,7 @@ function loadBdf(exportname, displayname, pattern)
     REFERENCE_EEG = EEG;
     for index = 1:length(status)
         first = event(index).latency;
-        last = (first-1) + fs*200;
+        last = (first-1) + constants.BioSemiConstants.Fs*200;
         EEG = pop_select(REFERENCE_EEG, 'point', [first last]);
         EEG.setname = char(strcat(displayname, " - ", status{index}));
         EEG.subjectname = exportname;
