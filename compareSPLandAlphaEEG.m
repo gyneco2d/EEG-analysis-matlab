@@ -2,7 +2,7 @@ function compareSPLandAlphaEEG(plotchannel)
     % compareAlphaEEGandSPL() - Plot SPL(sound pressure level) and alpha band power in time series
     %
     % Usage:
-    %   >> compareAlphaEEGandSPL()
+    %   >> compareSPLandAlphaEEG()
     %
     % Inputs:
     %   plotchannel - [integer array] electrode number used for plotting
