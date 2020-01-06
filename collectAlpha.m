@@ -11,7 +11,7 @@ function [AlphaEEG] = collectAlpha()
     import constants.BioSemiConstants;
     import constants.ProjectConstants;
 
-    n = BioSemiConstants.Fs * ProjectConstants.Interval;
+    n = BioSemiConstants.Fs * ProjectConstants.FFTInterval;
     f = (0:n-1)*(BioSemiConstants.Fs/n);
     for iState = 1:size(ALLEEG, 2)
         totalTime = length(ALLEEG(iState).data(1, :)) / BioSemiConstants.Fs;
