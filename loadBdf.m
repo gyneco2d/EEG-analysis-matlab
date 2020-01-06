@@ -80,7 +80,15 @@ function loadBdf(exportname, displayname, pattern)
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end
-    
+
+    % Create datasets for latter half (100sec) of each state
+    for index = 1:size(ALLEEG, 2)
+        EEG = pop_select(ALLEEG(index), 'time', [100 200]);
+        EEG.setname = char(strcat(displayname, " - ", status{index}, " - latter 100sec"));
+        EEG = eeg_checkset(EEG);
+        [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
+    end
+
     % Export data separated by state
     save(strcat(filepath, exportname, 'separated', '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
 end
