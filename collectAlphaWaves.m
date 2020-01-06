@@ -1,5 +1,16 @@
-function [AlphaEEG] = collectAlpha()
-    % collectAlpha() - Collect alpha waves (8-13Hz) into structure 'AlphaEEG'
+function [AlphaEEG] = collectAlphaWaves()
+    % collectAlphaWaves() - Collect alpha waves (8-13Hz) into structure 'AlphaEEG'
+    %
+    % Usage:
+    %   >> collectAlphaWaves();
+    %
+    % structure array:
+    %   AlphaEEG setname             - dataset name
+    %            axis                - frequency axis
+    %            freq_distribution   - EEG power for each frequency 
+    %            timeseries_rootmean - rootmean of alpha waves for each fft section
+    %            raw                 - alpha waves in all sections
+    %            rootmean            - rootmean of alpha waves in all sections
 
     % Load EEG data from .mat file
     [filename, filepath] = uigetfile('*.mat');
