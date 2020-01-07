@@ -6,6 +6,10 @@ function compareWithSPL(plotchannel)
     %
     % Inputs:
     %   plotchannel - [integer array] electrode number used for plotting
+    %
+    % Required files:
+    %   [mat] - continuous data of listening state
+    %   [wav] - continuous sound record of listening state
 
     import constants.BioSemiConstants;
     import constants.ProjectConstants;
