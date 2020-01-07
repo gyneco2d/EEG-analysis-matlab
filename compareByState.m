@@ -13,9 +13,9 @@ function compareByState(AlphaEEG, channel)
 
     import constants.ProjectConstants;
 
-    arr = [];
+    rootmean = [];
     for iState = ProjectConstants.LatterHalfDataIndex
-        arr = [arr mean(AlphaEEG(iState).rootmean(channel))];
+        rootmean = [rootmean mean(AlphaEEG(iState).rootmean(channel))];
     end
 
     figure;
@@ -24,7 +24,7 @@ function compareByState(AlphaEEG, channel)
         name = strsplit(AlphaEEG(iState).setname, ' - ');
         state = [state name(2)];
     end
-    bar(ProjectConstants.LatterHalfDataIndex, detrend(arr) + mean(arr));
+    bar(ProjectConstants.LatterHalfDataIndex, detrend(rootmean) + mean(rootmean));
     xticks(ProjectConstants.LatterHalfDataIndex);
     xticklabels(state);
     xlabel('State');
