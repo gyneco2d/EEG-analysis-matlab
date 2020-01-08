@@ -58,5 +58,6 @@ function compareWithSPL(plotchannel)
         plot(smoothdata(iChannel, :));
     end
     subplot(212);
-    plot(abs(audio));
+    smoothspl = movmean(abs(audio), Fs * ProjectConstants.SmoothingWindowSize);
+    plot(smoothspl);
 end
