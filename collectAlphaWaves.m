@@ -1,8 +1,11 @@
-function [AlphaEEG] = collectAlphaWaves()
+function [AlphaEEG] = collectAlphaWaves(filepath)
     % collectAlphaWaves() - Collect alpha waves (8-13Hz) into structure 'AlphaEEG'
     %
     % Usage:
     %   >> collectAlphaWaves();
+    %
+    % Inputs:
+    %   filepath - [string] source file path
     %
     % structure array:
     %   AlphaEEG setname             - dataset name
@@ -13,11 +16,10 @@ function [AlphaEEG] = collectAlphaWaves()
     %            rootmean            - rootmean of alpha waves in all sections
 
     % Load EEG data from .mat file
-    [filename, filepath] = uigetfile('*.mat');
-    if ~ischar(filename) || ~ischar(filepath)
-        error('no files selected');
+    if ~ischar(filepath)
+        error('specify an existing file');
     end
-    load(strcat(filepath, filename));
+    load(filepath);
 
     import constants.BioSemiConstants;
     import constants.ProjectConstants;
