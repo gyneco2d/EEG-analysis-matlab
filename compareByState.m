@@ -17,6 +17,8 @@ function compareByState(AlphaEEG, channel)
     for iState = ProjectConstants.LatterHalfDataIndex
         rootmean = [rootmean mean(AlphaEEG(iState).rootmean(channel))];
     end
+    rootmean = detrend(rootmean) + mean(rootmean);
+    normalized = rootmean / mean(rootmean);
 
     figure;
     state = [];
@@ -24,10 +26,18 @@ function compareByState(AlphaEEG, channel)
         name = strsplit(AlphaEEG(iState).setname, ' - ');
         state = [state name(2)];
     end
-    bar(ProjectConstants.LatterHalfDataIndex, detrend(rootmean) + mean(rootmean));
+    bar(ProjectConstants.LatterHalfDataIndex, rootmean, 'b');
     xticks(ProjectConstants.LatterHalfDataIndex);
     xticklabels(state);
     xlabel('State');
     ylabel('Power[uV]');
     title('AlphaEEG power per state');
+
+    figure;
+    bar(ProjectConstants.LatterHalfDataIndex, normalized, 'g');
+    xticks(ProjectConstants.LatterHalfDataIndex);
+    xticklabels(state);
+    xlabel('State');
+    ylabel('Power');
+    title('Normalized AlphaEEG power per state');
 end
