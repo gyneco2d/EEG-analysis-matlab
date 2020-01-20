@@ -46,17 +46,15 @@ function loadBdf(exportname, displayname, pattern)
 
     % Remove invalid events due to chattering
     previous = EEG.event(1).latency;
-    invalids = [];
+    invalidEvents = [];
     for index = 2:length(EEG.event)
         if EEG.event(index).latency - previous < constants.BioSemiConstants.Fs
-            invalids = [invalids index];
+            invalidEvents = [invalidEvents index];
         else
             previous = EEG.event(index).latency;
         end
     end
-    for index = invalids
-        EEG = pop_editeventvals(EEG, 'delete', index);
-    end
+    EEG = pop_editeventvals(EEG, 'delete', invalidEvents);
     EEG = eeg_checkset(EEG);
 
     % Export data before separation
