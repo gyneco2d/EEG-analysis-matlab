@@ -57,10 +57,10 @@ function loadBdf(exportname, displayname, pattern)
     EEG = pop_editeventvals(EEG, 'delete', invalidEvents);
     EEG = eeg_checkset(EEG);
 
-    % Export data before separation
-    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
-    save(strcat(filepath, exportname, '', '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
-    ALLEEG(1) = [];
+    % Trim dataset and save the original before separation
+    FULLEEG = pop_select(EEG, 'point', [1 constants.BioSemiConstants.Fs * 830]);
+    FULLEEG = eeg_checkset(FULLEEG);
+    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, FULLEEG, 0, 'gui', 'off');
 
     % Separate data for each state
     event = EEG.event;
@@ -80,13 +80,13 @@ function loadBdf(exportname, displayname, pattern)
     end
 
     % Create datasets for latter half (100sec) of each state
-    for index = 1:size(ALLEEG, 2)
-        EEG = pop_select(ALLEEG(index), 'time', [100 200]);
+    for index = 1:length(status)
+        EEG = pop_select(ALLEEG(constants.ProjectConstants.DataByStateIndex(index)), 'time', [100 200]);
         EEG.setname = char(strcat(displayname, " - ", status{index}, " - latter 100sec"));
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end
 
-    % Export data separated by state
-    save(strcat(filepath, exportname, 'separated', '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
+    % Export data to mat file
+    save(strcat(filepath, exportname, '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
 end
