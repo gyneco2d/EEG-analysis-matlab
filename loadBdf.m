@@ -73,7 +73,7 @@ function loadBdf(subjectid, subjectname, pattern)
         first = event(index).latency;
         last = (first-1) + constants.BioSemiConstants.Fs*200;
         EEG = pop_select(REFERENCE_EEG, 'point', [first last]);
-        EEG.setname = char(strcat(subjectid, " - ", section{index}, " section"));
+        EEG.setname = char(strcat(subjectid, " - ", section{index}));
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end
