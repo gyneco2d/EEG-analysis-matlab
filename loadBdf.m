@@ -1,36 +1,48 @@
-function loadBdf(subjectid, subjectname, pattern)
+function loadBdf(subjectid)
     % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
     %             and split into '.mat' files for each state based on 'EEG.event'
     %
     % Usage:
-    %   >> loadBdf( 'name', '名前', 0 );  % Open dialog to generate '.mat' file based on selected file
+    %   >> loadBdf( 'subject01' );  % Open dialog to generate '.mat' file based on selected file
     %
     % Inputs:
     %   subjectid   - [string] subject identifier
-    %   subjectname - [string] subject name
-    %   pattern     - [0/1] order of sound source to be presented
-    %                    0: baseline1, HR, CD, baseline2
-    %                    1: baseline1, CD, HR, baseline2
+    %
+    % Expected bdf file name:
+    %   [subjectname][trial_pattern].bdf
+    %     subjectname   - subject name
+    %     trial_pattern - ['HRtoCD' / 'CDtoHR'] pattern of the measurment
+    %                       HRtoCD - baseline1, HR, CD, baseline2
+    %                       CDtoHR - baseline1, CD, HR, baseline2
     %
     % See also:
     %   >> help eeg_checkset           % the EEG dataset structure
 
     % Confirm args
     if ~ischar(subjectid); error('subjectid must be char'); end
-    if ~isnumeric(pattern); error('pattern must be numeric'); end
-    if pattern == 0
-        section = {'baseline1', 'HR', 'CD', 'baseline2'};
-        trial = 'HRtoCD';
-    else
-        section = {'baseline1', 'CD', 'HR', 'baseline2'};
-        trial = 'CDtoHR';
-    end
 
-    % Load bdf file
+    % Select bdf file
     [filename, filepath] = uigetfile('*.bdf');
     if ~ischar(filename) || ~ischar(filepath)
         error('no files selected');
     end
+
+    % Recognize trial patterns from filename
+    if contains(filename, 'HRtoCD')
+        section = {'baseline1', 'HR', 'CD', 'baseline2'};
+        trial = 'HRtoCD';
+    elseif contains(filename, 'CDtoHR')
+        section = {'baseline1', 'CD', 'HR', 'baseline2'};
+        trial = 'CDtoHR';
+    else
+        error('Not the expected file name');
+    end
+
+    % Recognize subject name
+    filenameparts = strsplit(filename, {'HRtoCD', 'CDtoHR'});
+    subjectname = filenameparts(1);
+    
+    % Load bdf file
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
     EEG = pop_biosig(strcat(filepath, filename), 'channels', constants.BioSemiConstants.Electrodes, 'ref', 32);
     EEG = pop_reref(EEG, []);
