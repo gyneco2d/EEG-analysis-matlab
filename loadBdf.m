@@ -1,4 +1,4 @@
-function loadBdf(subjectid)
+function loadBdf(subjectid, bdf)
     % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
     %             and split into '.mat' files for each state based on 'EEG.event'
     %
@@ -24,12 +24,9 @@ function loadBdf(subjectid)
 
     % Confirm args
     if ~ischar(subjectid); error('subjectid must be char'); end
-
-    % Select bdf file
-    [filename, filepath] = uigetfile('*.bdf');
-    if ~ischar(filename) || ~ischar(filepath)
-        error('no files selected');
-    end
+    if ~exist(bdf, 'file'); error('bdf file does not exist'); end
+    [filepath, name, ext] = fileparts(bdf);
+    filename = [name ext];
 
     % Recognize trial patterns from filename
     if contains(filename, 'HRtoCD')
