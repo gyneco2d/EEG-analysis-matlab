@@ -1,13 +1,13 @@
-function loadBdf(exportname, displayname, pattern)
+function loadBdf(subjectid, subjectname, pattern)
     % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
     %             and split into '.mat' files for each state based on 'EEG.event'
     %
     % Usage:
-    %   >> loadBdf( 'ito', '伊藤', 0 );  % Open dialog to generate '.mat' file based on selected file
+    %   >> loadBdf( 'name', '名前', 0 );  % Open dialog to generate '.mat' file based on selected file
     %
     % Inputs:
-    %   exportname  - [string] subject name
-    %   displayname - [string] subject name for display
+    %   subjectid   - [string] subject identifier
+    %   subjectname - [string] subject name
     %   pattern     - [0/1] order of sound source to be presented
     %                    0: baseline1, HR, CD, baseline2
     %                    1: baseline1, CD, HR, baseline2
@@ -16,15 +16,14 @@ function loadBdf(exportname, displayname, pattern)
     %   >> help eeg_checkset           % the EEG dataset structure
 
     % Confirm args
-    clearvars -except exportname displayname pattern;
-    if ~ischar(exportname); error('exportname must be char'); end
+    if ~ischar(subjectid); error('subjectid must be char'); end
     if ~isnumeric(pattern); error('pattern must be numeric'); end
     if pattern == 0
-        status = {'baseline1', 'HR', 'CD', 'baseline2'};
-        exportname = strcat(exportname, 'HRtoCD');
+        section = {'baseline1', 'HR', 'CD', 'baseline2'};
+        trial = 'HRtoCD';
     else
-        status = {'baseline1', 'CD', 'HR', 'baseline2'};
-        exportname = strcat(exportname, 'CDtoHR');
+        section = {'baseline1', 'CD', 'HR', 'baseline2'};
+        trial = 'CDtoHR';
     end
 
     % Load bdf file
@@ -35,9 +34,9 @@ function loadBdf(exportname, displayname, pattern)
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
     EEG = pop_biosig(strcat(filepath, filename), 'channels', constants.BioSemiConstants.Electrodes, 'ref', 32);
     EEG = pop_reref(EEG, []);
-    EEG.setname = displayname;
-    EEG.filename = filename;
-    EEG.filepath = filepath;
+    EEG.setname = subjectid;
+    EEG.subjectname = subjectname;
+    EEG.trial = trial;
     EEG = eeg_checkset(EEG);
 
     % Apply a 0.5-90Hz bandpass filter to the data
@@ -59,8 +58,9 @@ function loadBdf(exportname, displayname, pattern)
 
     % Trim dataset and save the original before separation
     FULLEEG = pop_select(EEG, 'point', [1 constants.BioSemiConstants.Fs * 830]);
+    FULLEEG.setname = char(strcat(subjectid, " - full"));
     FULLEEG = eeg_checkset(FULLEEG);
-    [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, FULLEEG, 0, 'gui', 'off');
+    [ALLEEG] = pop_newset(ALLEEG, FULLEEG, 0, 'gui', 'off');
 
     % Separate data for each state
     event = EEG.event;
@@ -69,24 +69,23 @@ function loadBdf(exportname, displayname, pattern)
     end
     EEG = eeg_checkset(EEG);
     REFERENCE_EEG = EEG;
-    for index = 1:length(status)
+    for index = 1:length(section)
         first = event(index).latency;
         last = (first-1) + constants.BioSemiConstants.Fs*200;
         EEG = pop_select(REFERENCE_EEG, 'point', [first last]);
-        EEG.setname = char(strcat(displayname, " - ", status{index}));
-        EEG.subjectname = exportname;
+        EEG.setname = char(strcat(subjectid, " - ", section{index}, " section"));
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end
 
     % Create datasets for latter half (100sec) of each state
-    for index = 1:length(status)
+    for index = 1:length(section)
         EEG = pop_select(ALLEEG(constants.ProjectConstants.DataByStateIndex(index)), 'time', [100 200]);
-        EEG.setname = char(strcat(displayname, " - ", status{index}, " - latter 100sec"));
+        EEG.setname = char(strcat(subjectid, " - ", section{index}, " - second half"));
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end
 
     % Export data to mat file
-    save(strcat(filepath, exportname, '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'status');
+    save(strcat(filepath, subjectid, '_', trial, '.mat'), 'ALLEEG', 'EEG', 'CURRENTSET', 'section');
 end
