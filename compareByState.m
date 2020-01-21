@@ -14,22 +14,22 @@ function compareByState(AlphaEEG, channel)
     import constants.ProjectConstants;
 
     sessions = [];
-    for iState = ProjectConstants.LatterHalfDataIndex
+    for iState = ProjectConstants.SecondHalfSectionIndex
         sessions = [sessions mean(AlphaEEG(iState).normalized_rootmean(channel))];
     end
     detrended = detrend(sessions) + mean(sessions);
 
     % Create label for plotting
     label = [];
-    for iState = ProjectConstants.LatterHalfDataIndex
+    for iState = ProjectConstants.SecondHalfSectionIndex
         name = strsplit(AlphaEEG(iState).setname, ' - ');
         label = [label name(2)];
     end
 
     % Plot the data before detrend
     figure;
-    bar(ProjectConstants.LatterHalfDataIndex, sessions, 'b');
-    xticks(ProjectConstants.LatterHalfDataIndex);
+    bar(ProjectConstants.SecondHalfSectionIndex, sessions, 'b');
+    xticks(ProjectConstants.SecondHalfSectionIndex);
     xticklabels(label);
     xlabel('State');
     ylabel('Power');
@@ -37,8 +37,8 @@ function compareByState(AlphaEEG, channel)
 
     % Plot detrended data
     figure;
-    bar(ProjectConstants.LatterHalfDataIndex, detrended, 'g');
-    xticks(ProjectConstants.LatterHalfDataIndex);
+    bar(ProjectConstants.SecondHalfSectionIndex, detrended, 'g');
+    xticks(ProjectConstants.SecondHalfSectionIndex);
     xticklabels(label);
     xlabel('State');
     ylabel('Power');

@@ -15,7 +15,7 @@ function plotFreqDistribution(AlphaEEG, channels)
 
     setname = strsplit(AlphaEEG(1).setname, ' - ');
     % Plot each channel in each state
-    for iState = ProjectConstants.LatterHalfDataIndex
+    for iState = ProjectConstants.SecondHalfSectionIndex
         figure('Name', string(setname(1)), 'NumberTitle', 'off');
         hold on;
         for channel = channels
@@ -32,7 +32,7 @@ function plotFreqDistribution(AlphaEEG, channels)
     % Plot the channel average for each state
     figure('Name', string(setname(1)), 'NumberTitle', 'off');
     hold on;
-    for iState = ProjectConstants.LatterHalfDataIndex
+    for iState = ProjectConstants.SecondHalfSectionIndex
         avgOfChannels = zeros(32, length(AlphaEEG(iState).freq_distribution(1, :)));
         for channel = channels
             avgOfChannels = avgOfChannels + AlphaEEG(iState).freq_distribution(channel, :);
@@ -41,7 +41,7 @@ function plotFreqDistribution(AlphaEEG, channels)
         plot(AlphaEEG(iState).axis, avgOfChannels);
     end
     status = [];
-    for iState = ProjectConstants.LatterHalfDataIndex
+    for iState = ProjectConstants.SecondHalfSectionIndex
         name = strsplit(AlphaEEG(iState).setname, ' - ');
         status = horzcat(status, name(2));
     end

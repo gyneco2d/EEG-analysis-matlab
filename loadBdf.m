@@ -92,7 +92,7 @@ function loadBdf(subjectid)
 
     % Create datasets for latter half (100sec) of each state
     for index = 1:length(section)
-        EEG = pop_select(ALLEEG(constants.ProjectConstants.DataByStateIndex(index)), 'time', [100 200]);
+        EEG = pop_select(ALLEEG(constants.ProjectConstants.SectionIndex(index)), 'time', [100 200]);
         EEG.setname = char(strcat(subjectid, " - ", section{index}, " - second half"));
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
