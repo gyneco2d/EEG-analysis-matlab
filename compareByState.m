@@ -1,43 +1,46 @@
 function compareByState(AlphaEEG, channel)
-    % compareByState() - Detrend through state & plot AlphaEEG power for each state
+    % compareByState() - Plot original AlphaEEG & detrended AlphaEEG power for each state
     %
     % Usage:
     %   >> compareByState( AlphaEEG, [14:18] );
     %
     % Inputs:
-    %   AlphaEEG - [structure] structure created by collectAlpha()
-    %   channel  - [integer array] electrode number used for calc & plotting
+    %   AlphaEEG - [structure] structure created by collectAlphaWaves()
+    %   channel  - [integer array] electrode number used for calculation & plotting
 
     % Confirm args
     if ~exist('channel', 'var'); channel = [14:18]; end
 
     import constants.ProjectConstants;
 
-    rootmean = [];
+    sessions = [];
     for iState = ProjectConstants.LatterHalfDataIndex
-        rootmean = [rootmean mean(AlphaEEG(iState).rootmean(channel))];
+        sessions = [sessions mean(AlphaEEG(iState).normalized_rootmean(channel))];
     end
-    rootmean = detrend(rootmean) + mean(rootmean);
-    normalized = rootmean / mean(rootmean);
+    detrended = detrend(sessions) + mean(sessions);
 
-    figure;
-    state = [];
+    % Create label for plotting
+    label = [];
     for iState = ProjectConstants.LatterHalfDataIndex
         name = strsplit(AlphaEEG(iState).setname, ' - ');
-        state = [state name(2)];
+        label = [label name(2)];
     end
-    bar(ProjectConstants.LatterHalfDataIndex, rootmean, 'b');
-    xticks(ProjectConstants.LatterHalfDataIndex);
-    xticklabels(state);
-    xlabel('State');
-    ylabel('Power[uV]');
-    title('AlphaEEG power per state');
 
+    % Plot the data before detrend
     figure;
-    bar(ProjectConstants.LatterHalfDataIndex, normalized, 'g');
+    bar(ProjectConstants.LatterHalfDataIndex, sessions, 'b');
     xticks(ProjectConstants.LatterHalfDataIndex);
-    xticklabels(state);
+    xticklabels(label);
     xlabel('State');
     ylabel('Power');
-    title('Normalized AlphaEEG power per state');
+    title('AlphaEEG power per state');
+
+    % Plot detrended data
+    figure;
+    bar(ProjectConstants.LatterHalfDataIndex, detrended, 'g');
+    xticks(ProjectConstants.LatterHalfDataIndex);
+    xticklabels(label);
+    xlabel('State');
+    ylabel('Power');
+    title('AlphaEEG power per state (detrended)');
 end
