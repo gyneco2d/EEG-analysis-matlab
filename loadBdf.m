@@ -1,12 +1,15 @@
-function loadBdf(subjectid, bdf)
+function loadBdf(subjectid, bdf, overwrite)
     % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
     %             and split into '.mat' files for each state based on 'EEG.event'
     %
     % Usage:
-    %   >> loadBdf( 'subject01' );  % Open dialog to generate '.mat' file based on selected file
+    %   >> loadBdf( 'subject01', '/User/gyneco2d/Documents/MATLAB/subjectnameHRtoCD.bdf' );
     %
     % Inputs:
-    %   subjectid   - [string] subject identifier
+    %   subjectid - [string] subject identifier
+    %   bdf       - [string] bdf file path
+    %   overwrite - [0/1] 0: return control if mat file already exists
+    %                     1: overwrite even if mat file already exists
     %
     % Expected bdf file name:
     %   [subjectname][trial_pattern].bdf
@@ -27,6 +30,8 @@ function loadBdf(subjectid, bdf)
     if ~exist(bdf, 'file'); error('bdf file does not exist'); end
     [filepath, name, ext] = fileparts(bdf);
     filename = [name ext];
+    if ~exist('overwrite', 'var'); overwrite = 0; end
+    if overwrite ~= 0 && overwrite ~= 1; error('invalid input'); end
 
     % Recognize trial patterns from filename
     if contains(filename, 'HRtoCD')
@@ -42,6 +47,13 @@ function loadBdf(subjectid, bdf)
     % Recognize subject name
     filenameparts = strsplit(filename, {'HRtoCD', 'CDtoHR'});
     subjectname = filenameparts(1);
+
+    % Confirm overwrite
+    exportfile = fullfile(ProjectConstants.ProjectRoot, strcat(subjectid, '_', trial, '.mat'));
+    if exist(exportfile, 'file') && overwrite == 0
+        disp(strcat(exportfile, ' already exists'));
+        return
+    end
     
     % Load bdf file
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
@@ -100,6 +112,5 @@ function loadBdf(subjectid, bdf)
     end
 
     % Export data to mat file
-    exportfile = strcat(subjectid, '_', trial, '.mat');
-    save(fullfile(ProjectConstants.ProjectRoot, exportfile), 'ALLEEG', 'EEG', 'CURRENTSET', 'section');
+    save(exportfile, 'ALLEEG', 'EEG', 'CURRENTSET', 'section');
 end
