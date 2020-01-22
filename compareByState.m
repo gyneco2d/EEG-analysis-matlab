@@ -8,14 +8,15 @@ function compareByState(AlphaEEG, channel)
     %   AlphaEEG - [structure] structure created by collectAlphaWaves()
     %   channel  - [integer array] electrode number used for calculation & plotting
 
+    % Import constants
+    import('constants.ProjectConstants');
+
     % Confirm args
     if ~exist('channel', 'var'); channel = [14:18]; end
 
-    import constants.ProjectConstants;
-
     sessions = [];
     for iState = ProjectConstants.SecondHalfSectionIndex
-        sessions = [sessions mean(AlphaEEG(iState).normalized_rootmean(channel))];
+        sessions = [sessions mean(AlphaEEG(iState).normalized_section_power(channel))];
     end
     detrended = detrend(sessions) + mean(sessions);
 
