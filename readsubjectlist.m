@@ -1,4 +1,4 @@
-function [subjectlist] = readsubjectlist('subjectlistpath')
+function [subjectlist] = readsubjectlist(subjectlistpath)
     % readsubjectlist() - Read subject list file and return created subject table
     %
     % Usage:
