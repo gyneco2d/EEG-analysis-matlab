@@ -1,4 +1,4 @@
-function compareWithSPL(plotchannel)
+function compareWithSPL(AlphaEEG, audiofile, plotchannel)
     % compareWithSPL() - Plot SPL(sound pressure level) and alpha band power in time series
     %
     % Usage:
@@ -11,53 +11,28 @@ function compareWithSPL(plotchannel)
     %   [mat] - continuous data of listening state
     %   [wav] - continuous sound record of listening state
 
-    import constants.BioSemiConstants;
-    import constants.ProjectConstants;
+    import('constants.BioSemiConstants');
+    import('constants.ProjectConstants');
 
     % Confirm args
     if ~exist('plotchannel', 'var'); plotchannel = [14:18]; end
-    
-    % Source file select
-    disp('Select EEG data');
-    [filename, filepath] = uigetfile('*.mat');
-    if ~ischar(filename) || ~ischar(filepath)
-        error('no files selected');
-    end
-    disp(strcat('Read: ', filepath, filename));
-    load(strcat(filepath, filename));
 
-    disp('Select audio file');
-    [filename, filepath] = uigetfile('*.wav');
-    if ~ischar(filename) || ~ischar(filepath)
-        error('no files selected');
-    end
-    disp(strcat('Read: ', filepath, filename));
-    [audio, Fs] = audioread(strcat(filepath, filename));
+    % Read audio file
+    [audio, Fs] = audioread(audiofile);
 
-    n = BioSemiConstants.Fs * ProjectConstants.FFTInterval;
-    f = (0:n-1)*(BioSemiConstants.Fs/n);
-    totlaTime = size(ALLEEG(1).data, 2) / BioSemiConstants.Fs;
-    nComponent = fix(totlaTime - 1);
-    stepsize = n / 2;
-    alphaBandIndex = calcFreqIndex(ProjectConstants.AlphaBand, f);
-    timeseries_rootmean = zeros(32, nComponent);
-    for channel = BioSemiConstants.Electrodes
-        for iComponent = 1:nComponent
-            first = (iComponent-1)*stepsize + 1;
-            last = first + (n-1);
-            x = ALLEEG(1).data(channel, first:last);
-            y = fft(x);
-            power = abs(y).^2/n;
-            timeseries_rootmean(channel, iComponent) = sqrt(mean(power(alphaBandIndex)));
-        end
-        smoothdata(channel, :) = movmean(timeseries_rootmean(channel, :), ProjectConstants.SmoothingWindowSize);
+    % Smoothing
+    smoothspl = movmean(abs(audio), Fs * ProjectConstants.SmoothingWindowSize);
+    for channel = plotchannel
+        smoothpower(channel, :) = movmean(AlphaEEG(1).timeseries_power(channel, :), ProjectConstants.SmoothingWindowSize);
     end
+
+    % Plot
+    figure;
     subplot(211);
     hold on;
-    for iChannel = plotchannel
-        plot(smoothdata(iChannel, :));
+    for channel = plotchannel
+        plot(smoothpower(channel, :));
     end
     subplot(212);
-    smoothspl = movmean(abs(audio), Fs * ProjectConstants.SmoothingWindowSize);
     plot(smoothspl);
 end
