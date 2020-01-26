@@ -1,4 +1,4 @@
-# MATLAB scripts for alpha-EEG analysis
+# EEG analysis for Hypersonic Effect
 
 ## Environment
 - macOS Catalina 10.15.2
