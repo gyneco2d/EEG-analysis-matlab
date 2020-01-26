@@ -23,8 +23,8 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
     end
     load(filepath);
 
-    import constants.BioSemiConstants;
-    import constants.ProjectConstants;
+    import('constants.BioSemiConstants');
+    import('constants.ProjectConstants');
 
     n = BioSemiConstants.Fs * ProjectConstants.FFTInterval;
     f = (0:n-1)*(BioSemiConstants.Fs/n);
@@ -36,6 +36,7 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
         AlphaEEG(iState).setname = ALLEEG(iState).setname;
         AlphaEEG(iState).axis = f;
         AlphaEEG(iState).freq_distribution = zeros(32, n);
+        AlphaEEG(iState).eeg_percentage = struct();
         AlphaEEG(iState).timeseries_power = zeros(32, nComponent);
         AlphaEEG(iState).raw = zeros(32, length(alphaIndex)*nComponent);
         AlphaEEG(iState).section_power = zeros(32, 1);
@@ -57,6 +58,10 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
             AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) / nComponent;
             AlphaEEG(iState).section_power(channel, 1) = sqrt(mean(AlphaEEG(iState).raw(channel, :)));
         end
+        fftpower = AlphaEEG(iState).freq_distribution;
+        freqaxis = AlphaEEG(iState).axis;
+        [AlphaEEG(iState).eeg_percentage.theta, AlphaEEG(iState).eeg_percentage.alpha,...
+            AlphaEEG(iState).eeg_percentage.beta, AlphaEEG(iState).eeg_percentage.gamma] = calcEEGpercentage(fftpower, freqaxis);
         standard = mean(AlphaEEG(iState).raw, 'all');
         AlphaEEG(iState).normalized = AlphaEEG(iState).raw / standard;
         for channel = BioSemiConstants.Electrodes
