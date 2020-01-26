@@ -32,12 +32,12 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
         totalTime = length(ALLEEG(iState).data(1, :)) / BioSemiConstants.Fs;
         nComponent = fix(totalTime - 1);
         stepsize = n / 2;
-        alphaBandIndex = calcFreqIndex(ProjectConstants.AlphaBand, f);
+        alphaIndex = calcFreqIndex(ProjectConstants.AlphaWaves, f);
         AlphaEEG(iState).setname = ALLEEG(iState).setname;
         AlphaEEG(iState).axis = f;
         AlphaEEG(iState).freq_distribution = zeros(32, n);
         AlphaEEG(iState).timeseries_power = zeros(32, nComponent);
-        AlphaEEG(iState).raw = zeros(32, length(alphaBandIndex)*nComponent);
+        AlphaEEG(iState).raw = zeros(32, length(alphaIndex)*nComponent);
         AlphaEEG(iState).section_power = zeros(32, 1);
 
         for channel = BioSemiConstants.Electrodes
@@ -49,10 +49,10 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
                 power = abs(y).^2/n;
 
                 AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) + power;
-                for iAlpha = 1:length(alphaBandIndex)
-                    AlphaEEG(iState).raw(channel, iAlpha + (iComponent-1)*length(alphaBandIndex)) = power(alphaBandIndex(iAlpha));
+                for iAlpha = 1:length(alphaIndex)
+                    AlphaEEG(iState).raw(channel, iAlpha + (iComponent-1)*length(alphaIndex)) = power(alphaIndex(iAlpha));
                 end
-                AlphaEEG(iState).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaBandIndex)));
+                AlphaEEG(iState).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaIndex)));
             end
             AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) / nComponent;
             AlphaEEG(iState).section_power(channel, 1) = sqrt(mean(AlphaEEG(iState).raw(channel, :)));
