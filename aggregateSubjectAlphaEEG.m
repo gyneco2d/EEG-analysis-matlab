@@ -30,5 +30,5 @@ function [AlphaEEGcollection] = aggregateSubjectAlphaEEG(subjectList)
         end
     end
 
-    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_collection.mat'), 'AlphaEEGcollection');
+    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_collection.mat'), 'AlphaEEGcollection', '-v7.3');
 end
