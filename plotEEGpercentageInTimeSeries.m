@@ -7,7 +7,6 @@ function plotEEGpercentageInTimeSeries(AlphaEEG)
     % Inputs:
     %   AlphaEEG - [structure] structure created by collectAlphaWaves()
 
-    freqaxis = AlphaEEG(1).axis;
     percentages = [];
     pctAlpha = [];
     for component = 1:length(AlphaEEG(1).timeseries_eeg_percentage)
