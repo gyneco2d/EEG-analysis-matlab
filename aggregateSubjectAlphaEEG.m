@@ -1,4 +1,4 @@
-function [AlphaEEGcollection] = aggregateSubjectAlphaEEG(subjectList)
+function [AlphaEEGcontinuousDatasets, AlphaEEGcollection] = aggregateSubjectAlphaEEG(subjectList)
     % aggregateSubjectAlphaEEG() - Create AlphaEEG collection of listed subjects
     %
     % Usage:
@@ -23,6 +23,10 @@ function [AlphaEEGcollection] = aggregateSubjectAlphaEEG(subjectList)
             disp(['Read ', filename]);
             AlphaEEG = collectAlphaWaves(filename);
 
+            % Aggregate trial data
+            AlphaEEG(1).setname = trial;
+            AlphaEEGcontinuousDatasets(length(trials)*subject - double(iTrial == 1)) = AlphaEEG(1);
+            % Aggregate second harf of the section
             firstSection =  sectionsPerSubject * (subject-1) + 1 + sections*(iTrial-1);
             for index = 1:sections
                 AlphaEEGcollection(firstSection+index-1) = AlphaEEG(ProjectConstants.SecondHalfSectionIndex(index));
@@ -30,5 +34,6 @@ function [AlphaEEGcollection] = aggregateSubjectAlphaEEG(subjectList)
         end
     end
 
+    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_continuous_datasets.mat'), 'AlphaEEGcontinuousDatasets', '-v7.3');
     save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_collection.mat'), 'AlphaEEGcollection', '-v7.3');
 end
