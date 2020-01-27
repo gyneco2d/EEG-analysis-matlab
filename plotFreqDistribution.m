@@ -15,34 +15,34 @@ function plotFreqDistribution(AlphaEEG, channels)
 
     setname = strsplit(AlphaEEG(1).setname, ' - ');
     % Plot each channel in each state
-    for iState = ProjectConstants.SecondHalfSectionIndex
+    for section = ProjectConstants.SecondHalfSectionIndex
         figure('Name', string(setname(1)), 'NumberTitle', 'off');
         hold on;
         for channel = channels
-            plot(AlphaEEG(iState).axis, AlphaEEG(iState).freq_distribution(channel, :));
+            plot(AlphaEEG(section).axis, AlphaEEG(section).freq_distribution(channel, :));
         end
         legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
         xlim([6 15]);
         ylim([0 100000]);
         xlabel('Frequency[Hz]');
         ylabel('Power[uV]');
-        title(AlphaEEG(iState).setname);
+        title(AlphaEEG(section).setname);
     end
 
     % Plot the channel average for each state
     figure('Name', string(setname(1)), 'NumberTitle', 'off');
     hold on;
-    for iState = ProjectConstants.SecondHalfSectionIndex
-        avgOfChannels = zeros(32, length(AlphaEEG(iState).freq_distribution(1, :)));
+    for section = ProjectConstants.SecondHalfSectionIndex
+        avgOfChannels = zeros(32, length(AlphaEEG(section).freq_distribution(1, :)));
         for channel = channels
-            avgOfChannels = avgOfChannels + AlphaEEG(iState).freq_distribution(channel, :);
+            avgOfChannels = avgOfChannels + AlphaEEG(section).freq_distribution(channel, :);
         end
         avgOfChannels = avgOfChannels / length(channels);
-        plot(AlphaEEG(iState).axis, avgOfChannels);
+        plot(AlphaEEG(section).axis, avgOfChannels);
     end
     status = [];
-    for iState = ProjectConstants.SecondHalfSectionIndex
-        name = strsplit(AlphaEEG(iState).setname, ' - ');
+    for section = ProjectConstants.SecondHalfSectionIndex
+        name = strsplit(AlphaEEG(section).setname, ' - ');
         status = horzcat(status, name(2));
     end
     legend(status, 'Location', 'northeast');

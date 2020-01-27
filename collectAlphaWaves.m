@@ -28,44 +28,44 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
 
     n = BioSemiConstants.Fs * ProjectConstants.FFTInterval;
     f = (0:n-1)*(BioSemiConstants.Fs/n);
-    for iState = 1:size(ALLEEG, 2)
-        totalTime = length(ALLEEG(iState).data(1, :)) / BioSemiConstants.Fs;
+    for section = 1:size(ALLEEG, 2)
+        totalTime = length(ALLEEG(section).data(1, :)) / BioSemiConstants.Fs;
         nComponent = fix(totalTime - 1);
         stepsize = n / 2;
         alphaIndex = calcFreqIndex(ProjectConstants.AlphaWaves, f);
-        AlphaEEG(iState).setname = ALLEEG(iState).setname;
-        AlphaEEG(iState).axis = f;
-        AlphaEEG(iState).freq_distribution = zeros(32, n);
-        AlphaEEG(iState).eeg_percentage = struct();
-        AlphaEEG(iState).timeseries_power = zeros(32, nComponent);
-        AlphaEEG(iState).raw = zeros(32, length(alphaIndex)*nComponent);
-        AlphaEEG(iState).section_power = zeros(32, 1);
+        AlphaEEG(section).setname = ALLEEG(section).setname;
+        AlphaEEG(section).axis = f;
+        AlphaEEG(section).freq_distribution = zeros(32, n);
+        AlphaEEG(section).eeg_percentage = struct();
+        AlphaEEG(section).timeseries_power = zeros(32, nComponent);
+        AlphaEEG(section).raw = zeros(32, length(alphaIndex)*nComponent);
+        AlphaEEG(section).section_power = zeros(32, 1);
 
         for channel = BioSemiConstants.Electrodes
             for iComponent = 1:nComponent
                 first = (iComponent-1)*stepsize + 1;
                 last = first + (n-1);
-                x = ALLEEG(iState).data(channel, first:last);
+                x = ALLEEG(section).data(channel, first:last);
                 y = fft(x);
                 power = abs(y).^2/n;
 
-                AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) + power;
+                AlphaEEG(section).freq_distribution(channel, :) = AlphaEEG(section).freq_distribution(channel, :) + power;
                 for iAlpha = 1:length(alphaIndex)
-                    AlphaEEG(iState).raw(channel, iAlpha + (iComponent-1)*length(alphaIndex)) = power(alphaIndex(iAlpha));
+                    AlphaEEG(section).raw(channel, iAlpha + (iComponent-1)*length(alphaIndex)) = power(alphaIndex(iAlpha));
                 end
-                AlphaEEG(iState).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaIndex)));
+                AlphaEEG(section).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaIndex)));
             end
-            AlphaEEG(iState).freq_distribution(channel, :) = AlphaEEG(iState).freq_distribution(channel, :) / nComponent;
-            AlphaEEG(iState).section_power(channel, 1) = sqrt(mean(AlphaEEG(iState).raw(channel, :)));
+            AlphaEEG(section).freq_distribution(channel, :) = AlphaEEG(section).freq_distribution(channel, :) / nComponent;
+            AlphaEEG(section).section_power(channel, 1) = sqrt(mean(AlphaEEG(section).raw(channel, :)));
         end
-        fftpower = AlphaEEG(iState).freq_distribution;
-        freqaxis = AlphaEEG(iState).axis;
-        [AlphaEEG(iState).eeg_percentage.theta, AlphaEEG(iState).eeg_percentage.alpha,...
-            AlphaEEG(iState).eeg_percentage.beta, AlphaEEG(iState).eeg_percentage.gamma] = calcEEGpercentage(fftpower, freqaxis);
-        standard = mean(AlphaEEG(iState).raw, 'all');
-        AlphaEEG(iState).normalized = AlphaEEG(iState).raw / standard;
+        fftpower = AlphaEEG(section).freq_distribution;
+        freqaxis = AlphaEEG(section).axis;
+        [AlphaEEG(section).eeg_percentage.theta, AlphaEEG(section).eeg_percentage.alpha,...
+            AlphaEEG(section).eeg_percentage.beta, AlphaEEG(section).eeg_percentage.gamma] = calcEEGpercentage(fftpower, freqaxis);
+        standard = mean(AlphaEEG(section).raw, 'all');
+        AlphaEEG(section).normalized = AlphaEEG(section).raw / standard;
         for channel = BioSemiConstants.Electrodes
-            AlphaEEG(iState).normalized_section_power(channel, 1) = sqrt(mean(AlphaEEG(iState).normalized(channel, :)));
+            AlphaEEG(section).normalized_section_power(channel, 1) = sqrt(mean(AlphaEEG(section).normalized(channel, :)));
         end
     end
 end
