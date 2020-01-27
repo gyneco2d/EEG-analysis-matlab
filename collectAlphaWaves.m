@@ -23,6 +23,7 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
     end
     load(filepath);
 
+    % Import constants
     import('constants.BioSemiConstants');
     import('constants.ProjectConstants');
 
@@ -36,10 +37,12 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
         AlphaEEG(section).setname = ALLEEG(section).setname;
         AlphaEEG(section).axis = f;
         AlphaEEG(section).freq_distribution = zeros(32, n);
+        AlphaEEG(section).timeseries_freq_distribution(nComponent) = {[]};
         AlphaEEG(section).eeg_percentage = struct();
-        AlphaEEG(section).timeseries_power = zeros(32, nComponent);
+        AlphaEEG(section).timeseries_eeg_percentage = struct();
         AlphaEEG(section).raw = zeros(32, length(alphaIndex)*nComponent);
         AlphaEEG(section).section_power = zeros(32, 1);
+        AlphaEEG(section).timeseries_power = zeros(32, nComponent);
 
         for channel = BioSemiConstants.Electrodes
             for iComponent = 1:nComponent
@@ -54,6 +57,9 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
                     AlphaEEG(section).raw(channel, iAlpha + (iComponent-1)*length(alphaIndex)) = power(alphaIndex(iAlpha));
                 end
                 AlphaEEG(section).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaIndex)));
+                AlphaEEG(section).timeseries_freq_distribution(iComponent) = {...
+                    [cell2mat(AlphaEEG(section).timeseries_freq_distribution(iComponent)); power]...
+                };
             end
             AlphaEEG(section).freq_distribution(channel, :) = AlphaEEG(section).freq_distribution(channel, :) / nComponent;
             AlphaEEG(section).section_power(channel, 1) = sqrt(mean(AlphaEEG(section).raw(channel, :)));
@@ -62,6 +68,14 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
         freqaxis = AlphaEEG(section).axis;
         [AlphaEEG(section).eeg_percentage.theta, AlphaEEG(section).eeg_percentage.alpha,...
             AlphaEEG(section).eeg_percentage.beta, AlphaEEG(section).eeg_percentage.gamma] = calcEEGpercentage(fftpower, freqaxis);
+        for iComponent = 1:nComponent
+            [...
+                AlphaEEG(section).timeseries_eeg_percentage(iComponent).theta,...
+                AlphaEEG(section).timeseries_eeg_percentage(iComponent).alpha,...
+                AlphaEEG(section).timeseries_eeg_percentage(iComponent).beta,...
+                AlphaEEG(section).timeseries_eeg_percentage(iComponent).gamma...
+            ] = calcEEGpercentage(cell2mat(AlphaEEG(section).timeseries_freq_distribution(iComponent)), AlphaEEG(section).axis);
+        end
         standard = mean(AlphaEEG(section).raw, 'all');
         AlphaEEG(section).normalized = AlphaEEG(section).raw / standard;
         for channel = BioSemiConstants.Electrodes
