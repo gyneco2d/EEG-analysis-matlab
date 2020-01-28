@@ -1,4 +1,4 @@
-function plotEEGpercentageInTimeSeries(AlphaEEG)
+function plotEEGpercentagesInTimeSeries(AlphaEEG)
     % plotEEGpercentageInTimeSeries() - plot EEG & Alpha wave percentage transition
     %
     % Usage:
@@ -23,7 +23,7 @@ function plotEEGpercentageInTimeSeries(AlphaEEG)
     figure();
     bar(percentages, 'stacked');
     legend({'theta', 'alpha', 'beta', 'gamma'}, 'location', 'northeast');
-    ylim([1 100]);
+    ylim([0 100]);
     xlabel('Time');
     ylabel('Percentage [%]');
     title('EEG percentage in time series');
