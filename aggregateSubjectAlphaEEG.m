@@ -25,15 +25,21 @@ function [AlphaEEGcontinuousDatasets, AlphaEEGcollection] = aggregateSubjectAlph
 
             % Aggregate trial data
             AlphaEEG(1).setname = trial;
-            AlphaEEGcontinuousDatasets(length(trials)*subject - double(iTrial == 1)) = AlphaEEG(1);
+            AlphaEEGcontinuousDatasets(...
+                length(trials)*subject - double(iTrial == 1)) = AlphaEEG(1);
             % Aggregate second harf of the section
-            firstSection =  sectionsPerSubject * (subject-1) + 1 + sections*(iTrial-1);
+            firstSection = sectionsPerSubject * (subject-1) + 1 + sections*(iTrial-1);
             for index = 1:sections
-                AlphaEEGcollection(firstSection+index-1) = AlphaEEG(ProjectConstants.SecondHalfSectionIndex(index));
+                AlphaEEGcollection(firstSection+index-1) ...
+                    = AlphaEEG(ProjectConstants.SecondHalfSectionIndex(index));
             end
         end
     end
 
-    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_continuous_datasets.mat'), 'AlphaEEGcontinuousDatasets', '-v7.3');
-    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_collection.mat'), 'AlphaEEGcollection', '-v7.3');
+    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_continuous_datasets.mat'), ...
+         'AlphaEEGcontinuousDatasets', ...
+         '-v7.3');
+    save(fullfile(ProjectConstants.ProjectRoot, 'AlphaEEG_collection.mat'), ...
+         'AlphaEEGcollection', ...
+         '-v7.3');
 end

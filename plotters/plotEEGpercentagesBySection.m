@@ -26,6 +26,7 @@ function plotEEGpercentagesBySection(AlphaEEG)
     figure();
     bar(percentage, 'stacked');
     legend({'theta', 'alpha', 'beta', 'gamma'}, 'Location', 'northeast');
+    ylim([0 100]);
     xticks([1:length(sectionName)]);
     xticklabels(sectionName);
     xlabel('Section')

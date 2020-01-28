@@ -1,9 +1,10 @@
 function loadBdf(subjectid, bdf, overwrite)
     % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
-    %             and split into '.mat' files for each state based on 'EEG.event'
+    %             and split into MAT files for each state based on 'EEG.event'
     %
     % Usage:
-    %   >> loadBdf( 'subject01', '/User/gyneco2d/Documents/MATLAB/subjectnameHRtoCD.bdf' );
+    %   >> loadBdf( 'subject01', ...
+    %               '/User/gyneco2d/Documents/MATLAB/subjectnameHRtoCD.bdf' );
     %
     % Inputs:
     %   subjectid - [string] subject identifier
@@ -26,12 +27,12 @@ function loadBdf(subjectid, bdf, overwrite)
     import('constants.ProjectConstants');
 
     % Confirm args
-    if ~ischar(subjectid); error('subjectid must be char'); end
-    if ~exist(bdf, 'file'); error('bdf file does not exist'); end
+    if ~ischar(subjectid), error('subjectid must be char'); end
+    if ~exist(bdf, 'file'), error('bdf file does not exist'); end
     [filepath, name, ext] = fileparts(bdf);
     filename = [name ext];
-    if ~exist('overwrite', 'var'); overwrite = 0; end
-    if overwrite ~= 0 && overwrite ~= 1; error('invalid input'); end
+    if ~exist('overwrite', 'var'), overwrite = 0; end
+    if overwrite ~= 0 && overwrite ~= 1, error('invalid input'); end
 
     % Recognize trial patterns from filename
     if contains(filename, 'HRtoCD')
@@ -49,7 +50,8 @@ function loadBdf(subjectid, bdf, overwrite)
     subjectname = filenameparts(1);
 
     % Confirm overwrite
-    exportfile = fullfile(ProjectConstants.ProjectRoot, strcat(subjectid, '_', trial, '.mat'));
+    exportfile = fullfile(ProjectConstants.ProjectRoot, ...
+                          strcat(subjectid, '_', trial, '.mat'));
     if exist(exportfile, 'file') && overwrite == 0
         disp(strcat(exportfile, ' already exists'));
         return
@@ -57,7 +59,8 @@ function loadBdf(subjectid, bdf, overwrite)
     
     % Load bdf file
     [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
-    EEG = pop_biosig(fullfile(filepath, filename), 'channels', BioSemiConstants.Electrodes, 'ref', 32);
+    EEG = pop_biosig(fullfile(filepath, filename), 'channels', ...
+                     BioSemiConstants.Electrodes, 'ref', 32);
     EEG = pop_reref(EEG, []);
     EEG.setname = subjectid;
     EEG.subjectname = subjectname;
@@ -105,8 +108,10 @@ function loadBdf(subjectid, bdf, overwrite)
 
     % Create datasets for latter half (100sec) of each state
     for index = 1:length(section)
-        EEG = pop_select(ALLEEG(ProjectConstants.SectionIndex(index)), 'time', [100 200]);
-        EEG.setname = char(strcat(subjectid, " - ", section{index}, " - second half"));
+        EEG = pop_select(ALLEEG(ProjectConstants.SectionIndex(index)), ...
+                         'time', [100 200]);
+        EEG.setname = char(...
+            strcat(subjectid, " - ", section{index}, " - second half"));
         EEG = eeg_checkset(EEG);
         [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0, 'gui', 'off');
     end

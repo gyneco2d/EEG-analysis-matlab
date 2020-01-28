@@ -1,6 +1,6 @@
 function collectNormalizedSectionPower(subjectList)
     % collectNormalizedSectionPower() - Generate CSV file that summarizes 
-    %                                   normalized section power of listed subjects
+    %                                   normalized section power of subjects
     %
     % Usage:
     %   >> collectNormalizedSectionPower( 'subjectList.dat' );
@@ -65,9 +65,16 @@ function collectNormalizedSectionPower(subjectList)
         baseline2Section = [baseline2Section; baseline2];
     end
 
+    % Organize data as a table
     listlength = size(list, 1)*2;
     tableindex = reshape([1:listlength], [listlength, 1]);
-    result = table(tableindex, trial, baseline1Section, cdSection, hrSection, baseline2Section);
+    result = table(...
+                tableindex, ...
+                trial, ...
+                baseline1Section, cdSection, hrSection, baseline2Section);
     result.Properties.VariableNames = {'Index', 'Trial', 'Baseline1', 'CD', 'HR', 'Baseline2'};
-    writetable(result, fullfile(ProjectConstants.ProjectRoot, 'result.txt'), 'Delimiter', ',');
+
+    % Export
+    writetable(result, fullfile(ProjectConstants.ProjectRoot, 'result.txt'), ...
+               'Delimiter', ',');
 end
