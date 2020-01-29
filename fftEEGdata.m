@@ -1,19 +1,19 @@
-function [EEGFREQS] = fftEEGdata(filepath)
+function [EEGFREQS] = fftEEGdata(datasetfile)
     % fftEEGdata() - FFT EEGLAB datasets into structure 'EEGFREQS'
     %
     % Usage:
     %   >> fftEEGdata( '/Users/gyneco2d/Documents/MATLAB/subject01_HRtoCD.mat' );
     %
     % Inputs:
-    %   filepath - [string] source file path
+    %   datasetfile - [string] file path where EEGLAB dataset is stored
     %
     % structure array:
     %   EEGFREQS setname                      - dataset name
     %            axis                         - frequency axis
     %            distribution                 - EEG power for each frequency 
     %            timeseries_distribution      - time series EEG power for each frequency
-    %            eeg_percentage               - EEG percentages
-    %            timeseries_eeg_percentage    - timeseries EEG percentages
+    %            percentage                   - EEG percentages
+    %            timeseries_percentage        - timeseries EEG percentages
     %            raw                          - alpha waves in all fft windows
     %            section_power                - square root of the averaged alpha waves in the section
     %            timeseries_power             - square root of the averaged alpha waves for each fft window
@@ -21,10 +21,10 @@ function [EEGFREQS] = fftEEGdata(filepath)
     %            normalized_section_power     - normalized section_power (respect to raw average)
 
     % Load EEG data from .mat file
-    if ~ischar(filepath)
-        error('specify an existing file');
+    if ~exist(datasetfile, 'file')
+        error('Specify an existing file');
     end
-    load(filepath);
+    load(datasetfile);
 
     % Import constants
     import('constants.ProjectConstants');
@@ -32,7 +32,8 @@ function [EEGFREQS] = fftEEGdata(filepath)
     n = ProjectConstants.BioSemiSamplingRate * ProjectConstants.FFTwindowSize;
     f = (0:n-1)*(ProjectConstants.BioSemiSamplingRate/n);
     for section = 1:size(ALLEEG, 2)
-        totalTime = length(ALLEEG(section).data(1, :)) / ProjectConstants.BioSemiSamplingRate;
+        totalTime = length(ALLEEG(section).data(1, :)) / ...
+                    ProjectConstants.BioSemiSamplingRate;
         nComponent = fix(totalTime - 1);
         stepsize = n / 2;
         alphaIndex = calcFreqIndex(ProjectConstants.AlphaWaves, f);
@@ -40,10 +41,10 @@ function [EEGFREQS] = fftEEGdata(filepath)
         % Initialize EEGFREQS structure
         EEGFREQS(section).setname = ALLEEG(section).setname;
         EEGFREQS(section).axis = f;
-        EEGFREQS(section).freq_distribution = zeros(32, n);
-        EEGFREQS(section).timeseries_freq_distribution(nComponent) = {[]};
-        EEGFREQS(section).eeg_percentage = struct();
-        EEGFREQS(section).timeseries_eeg_percentage = struct();
+        EEGFREQS(section).distribution = zeros(32, n);
+        EEGFREQS(section).timeseries_distribution(nComponent) = {[]};
+        EEGFREQS(section).percentage = struct();
+        EEGFREQS(section).timeseries_percentage = struct();
         EEGFREQS(section).raw = zeros(32, length(alphaIndex)*nComponent);
         EEGFREQS(section).section_power = zeros(32, 1);
         EEGFREQS(section).timeseries_power = zeros(32, nComponent);
@@ -58,12 +59,12 @@ function [EEGFREQS] = fftEEGdata(filepath)
                 power = abs(y).^2/n;
 
                 % Summation of frequency distribution for calculation average
-                EEGFREQS(section).freq_distribution(channel, :) = ...
-                    EEGFREQS(section).freq_distribution(channel, :) + power;
+                EEGFREQS(section).distribution(channel, :) = ...
+                    EEGFREQS(section).distribution(channel, :) + power;
                 % Save time series frequency distribution
-                EEGFREQS(section).timeseries_freq_distribution(iComponent) = ...
+                EEGFREQS(section).timeseries_distribution(iComponent) = ...
                     {...
-                        [cell2mat(EEGFREQS(section).timeseries_freq_distribution(iComponent));
+                        [cell2mat(EEGFREQS(section).timeseries_distribution(iComponent));
                         power]...
                     };
 
@@ -75,30 +76,30 @@ function [EEGFREQS] = fftEEGdata(filepath)
                 EEGFREQS(section).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaIndex)));
             end
             % Save the average frequency distribution
-            EEGFREQS(section).freq_distribution(channel, :) = ...
-                EEGFREQS(section).freq_distribution(channel, :) / nComponent;
+            EEGFREQS(section).distribution(channel, :) = ...
+                EEGFREQS(section).distribution(channel, :) / nComponent;
             EEGFREQS(section).section_power(channel, 1) = ...
                 sqrt(mean(EEGFREQS(section).raw(channel, :)));
         end
         % Calculate the overall EEG percentage
-        fftpower = EEGFREQS(section).freq_distribution;
+        fftpower = EEGFREQS(section).distribution;
         freqaxis = EEGFREQS(section).axis;
         [...
-            EEGFREQS(section).eeg_percentage.theta, ...
-            EEGFREQS(section).eeg_percentage.alpha,...
-            EEGFREQS(section).eeg_percentage.beta, ...
-            EEGFREQS(section).eeg_percentage.gamma ...
+            EEGFREQS(section).percentage.theta, ...
+            EEGFREQS(section).percentage.alpha,...
+            EEGFREQS(section).percentage.beta, ...
+            EEGFREQS(section).percentage.gamma ...
         ] = calcEEGpercentage(fftpower, freqaxis);
 
         % Save frequency distribution for each time series
         for iComponent = 1:nComponent
             [...
-                EEGFREQS(section).timeseries_eeg_percentage(iComponent).theta,...
-                EEGFREQS(section).timeseries_eeg_percentage(iComponent).alpha,...
-                EEGFREQS(section).timeseries_eeg_percentage(iComponent).beta,...
-                EEGFREQS(section).timeseries_eeg_percentage(iComponent).gamma...
+                EEGFREQS(section).timeseries_percentage(iComponent).theta,...
+                EEGFREQS(section).timeseries_percentage(iComponent).alpha,...
+                EEGFREQS(section).timeseries_percentage(iComponent).beta,...
+                EEGFREQS(section).timeseries_percentage(iComponent).gamma...
             ] = calcEEGpercentage(...
-                    cell2mat(EEGFREQS(section).timeseries_freq_distribution(iComponent)), ...
+                    cell2mat(EEGFREQS(section).timeseries_distribution(iComponent)), ...
                     EEGFREQS(section).axis);
         end
 
