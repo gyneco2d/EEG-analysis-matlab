@@ -1,4 +1,4 @@
-function freqIndex = calcFreqIndex(target, f)
+function freqIndex = getFreqIndex(target, f)
     % Returns index of f indicating the target frequency.
 
     for index = 1:length(f)
