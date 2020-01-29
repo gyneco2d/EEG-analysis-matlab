@@ -51,17 +51,17 @@ function [EEGFREQS] = fftEEGdata(datasetfile)
 
         for channel = ProjectConstants.AllElectrodes
             for iComponent = 1:nComponent
-                % Main FFT processing
+                % FFT EEG data in window
                 first = (iComponent-1)*stepsize + 1;
                 last = first + (n-1);
                 x = ALLEEG(section).data(channel, first:last);
                 y = fft(x);
                 power = abs(y).^2/n;
 
-                % Summation of frequency distribution for calculation average
+                % Sum to find the average frequency distribution
                 EEGFREQS(section).distribution(channel, :) = ...
                     EEGFREQS(section).distribution(channel, :) + power;
-                % Save time series frequency distribution
+                % Collect frequency distribution for each fft window
                 EEGFREQS(section).timeseries_distribution(iComponent) = ...
                     {...
                         [cell2mat(EEGFREQS(section).timeseries_distribution(iComponent));
@@ -70,18 +70,21 @@ function [EEGFREQS] = fftEEGdata(datasetfile)
 
                 % Save unprocessed Alpha wave power
                 for index = 1:length(alphaIndex)
-                    EEGFREQS(section).raw(channel, index + (iComponent-1)*length(alphaIndex)) = power(alphaIndex(index));
+                    EEGFREQS(section).raw(channel, index + (iComponent-1)*length(alphaIndex)) = ...
+                        power(alphaIndex(index));
                 end
-                % Save time series fft window power
-                EEGFREQS(section).timeseries_power(channel, iComponent) = sqrt(mean(power(alphaIndex)));
+                % Collect alpha wave power for each fft window
+                EEGFREQS(section).timeseries_power(channel, iComponent) = ...
+                    sqrt(mean(power(alphaIndex)));
             end
-            % Save the average frequency distribution
+            % Calculate the average frequency distribution between fft window
             EEGFREQS(section).distribution(channel, :) = ...
                 EEGFREQS(section).distribution(channel, :) / nComponent;
             EEGFREQS(section).section_power(channel, 1) = ...
                 sqrt(mean(EEGFREQS(section).raw(channel, :)));
         end
-        % Calculate the overall EEG percentage
+
+        % Calculate the percentage of each EEG
         fftpower = EEGFREQS(section).distribution;
         freqaxis = EEGFREQS(section).axis;
         [...
@@ -91,7 +94,7 @@ function [EEGFREQS] = fftEEGdata(datasetfile)
             EEGFREQS(section).percentage.gamma ...
         ] = calcEEGpercentage(fftpower, freqaxis);
 
-        % Save frequency distribution for each time series
+        % Collect the percentage of each EEG for each fft window
         for iComponent = 1:nComponent
             [...
                 EEGFREQS(section).timeseries_percentage(iComponent).theta,...
