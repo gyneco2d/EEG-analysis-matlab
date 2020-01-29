@@ -18,20 +18,20 @@ function [pctTheta, pctAlpha, pctBeta, pctGamma] = calcEEGpercentage(fftpower, f
     occipital = mean(fftpower(ProjectConstants.OccipitalElectrodes, :));
 
     % Total power of all bands (theta, alpha, beta)
-    analysisFreqIndex = getFreqIndex(ProjectConstants.AnalysisFreqRange, freqaxis);
+    analysisFreqIndex = getIndexOfFreqAxis(ProjectConstants.AnalysisFreqRange, freqaxis);
     allband = sum(occipital(analysisFreqIndex));
 
     % Calc each EEG percentage
-    thetabandIndex = getFreqIndex(ProjectConstants.ThetaWaves, freqaxis);
+    thetabandIndex = getIndexOfFreqAxis(ProjectConstants.ThetaWaves, freqaxis);
     thetaband = sum(occipital(thetabandIndex));
 
-    alphabandIndex = getFreqIndex(ProjectConstants.AlphaWaves, freqaxis);
+    alphabandIndex = getIndexOfFreqAxis(ProjectConstants.AlphaWaves, freqaxis);
     alphaband = sum(occipital(alphabandIndex));
 
-    betabandIndex = getFreqIndex(ProjectConstants.BetaWaves, freqaxis);
+    betabandIndex = getIndexOfFreqAxis(ProjectConstants.BetaWaves, freqaxis);
     betaband = sum(occipital(betabandIndex));
 
-    gammabandIndex = getFreqIndex(ProjectConstants.GammaWaves, freqaxis);
+    gammabandIndex = getIndexOfFreqAxis(ProjectConstants.GammaWaves, freqaxis);
     gammaband = sum(occipital(gammabandIndex));
 
     % Percentage expression
