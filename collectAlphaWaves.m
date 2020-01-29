@@ -27,13 +27,12 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
     load(filepath);
 
     % Import constants
-    import('constants.BioSemiConstants');
     import('constants.ProjectConstants');
 
-    n = BioSemiConstants.Fs * ProjectConstants.FFTInterval;
-    f = (0:n-1)*(BioSemiConstants.Fs/n);
+    n = ProjectConstants.BioSemiSamplingRate * ProjectConstants.FFTwindowSize;
+    f = (0:n-1)*(ProjectConstants.BioSemiSamplingRate/n);
     for section = 1:size(ALLEEG, 2)
-        totalTime = length(ALLEEG(section).data(1, :)) / BioSemiConstants.Fs;
+        totalTime = length(ALLEEG(section).data(1, :)) / ProjectConstants.BioSemiSamplingRate;
         nComponent = fix(totalTime - 1);
         stepsize = n / 2;
         alphaIndex = calcFreqIndex(ProjectConstants.AlphaWaves, f);
@@ -49,7 +48,7 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
         AlphaEEG(section).section_power = zeros(32, 1);
         AlphaEEG(section).timeseries_power = zeros(32, nComponent);
 
-        for channel = BioSemiConstants.Electrodes
+        for channel = ProjectConstants.AllElectrodes
             for iComponent = 1:nComponent
                 % Main FFT processing
                 first = (iComponent-1)*stepsize + 1;
@@ -106,7 +105,7 @@ function [AlphaEEG] = collectAlphaWaves(filepath)
         % Create normalized data
         standard = mean(AlphaEEG(section).raw, 'all');
         AlphaEEG(section).normalized = AlphaEEG(section).raw / standard;
-        for channel = BioSemiConstants.Electrodes
+        for channel = ProjectConstants.AllElectrodes
             AlphaEEG(section).normalized_section_power(channel, 1) = ...
                 sqrt(mean(AlphaEEG(section).normalized(channel, :)));
         end

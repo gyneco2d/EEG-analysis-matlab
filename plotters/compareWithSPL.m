@@ -11,7 +11,7 @@ function compareWithSPL(AlphaEEG, audiofile, plotchannel)
     %   [mat] - continuous data of listening state
     %   [wav] - continuous sound record of listening state
 
-    import('constants.BioSemiConstants');
+    % Import constants
     import('constants.ProjectConstants');
 
     % Confirm args

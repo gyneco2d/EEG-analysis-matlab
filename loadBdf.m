@@ -23,7 +23,6 @@ function loadBdf(subjectid, bdf, overwrite)
     %   >> help eeg_checkset           % the EEG dataset structure
 
     % Import constants
-    import('constants.BioSemiConstants');
     import('constants.ProjectConstants');
 
     % Confirm args
@@ -58,9 +57,10 @@ function loadBdf(subjectid, bdf, overwrite)
     end
     
     % Load bdf file
-    [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
+    ALLEEG = [];
+    CURRENTSET = 0;
     EEG = pop_biosig(fullfile(filepath, filename), 'channels', ...
-                     BioSemiConstants.Electrodes, 'ref', 32);
+                     ProjectConstants.AllElectrodes, 'ref', 32);
     EEG = pop_reref(EEG, []);
     EEG.setname = subjectid;
     EEG.subjectname = subjectname;
@@ -75,7 +75,7 @@ function loadBdf(subjectid, bdf, overwrite)
     previous = EEG.event(1).latency;
     invalidEvents = [];
     for index = 2:length(EEG.event)
-        if EEG.event(index).latency - previous < BioSemiConstants.Fs
+        if EEG.event(index).latency - previous < EEG.srate
             invalidEvents = [invalidEvents index];
         else
             previous = EEG.event(index).latency;
@@ -85,7 +85,7 @@ function loadBdf(subjectid, bdf, overwrite)
     EEG = eeg_checkset(EEG);
 
     % Trim dataset and save the original before separation
-    FULLEEG = pop_select(EEG, 'point', [1 BioSemiConstants.Fs * 830]);
+    FULLEEG = pop_select(EEG, 'point', [1 EEG.srate*830]);
     FULLEEG.setname = char(strcat(subjectid, " - full"));
     FULLEEG = eeg_checkset(FULLEEG);
     [ALLEEG] = pop_newset(ALLEEG, FULLEEG, 0, 'gui', 'off');
@@ -99,7 +99,7 @@ function loadBdf(subjectid, bdf, overwrite)
     REFERENCE_EEG = EEG;
     for index = 1:length(section)
         first = event(index).latency;
-        last = (first-1) + BioSemiConstants.Fs*200;
+        last = (first-1) + REFERENCE_EEG.srate*200;
         EEG = pop_select(REFERENCE_EEG, 'point', [first last]);
         EEG.setname = char(strcat(subjectid, " - ", section{index}));
         EEG = eeg_checkset(EEG);
