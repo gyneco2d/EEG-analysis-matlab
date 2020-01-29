@@ -1,9 +1,9 @@
-function loadBdf(subjectid, bdf, overwrite)
-    % loadBdf() - Read bdf file, apply 0.5-90Hz band pass filter,
+function loadBDF(subjectid, bdf, overwrite)
+    % loadBDF() - Read bdf file, apply 0.5-90Hz band pass filter,
     %             and split into MAT files for each state based on 'EEG.event'
     %
     % Usage:
-    %   >> loadBdf( 'subject01', ...
+    %   >> loadBDF( 'subject01', ...
     %               '/User/gyneco2d/Documents/MATLAB/subjectnameHRtoCD.bdf' );
     %
     % Inputs:
@@ -49,7 +49,7 @@ function loadBdf(subjectid, bdf, overwrite)
     end
 
     % Confirm overwrite
-    exportfile = fullfile(ProjectConstants.ProjectRoot, ...
+    exportfile = fullfile(ProjectConstants.ProjectRoot, 'datasets', ...
                           strcat(subjectid, '_', trial, '.mat'));
     if exist(exportfile, 'file') && strcmp(overwrite, 'skip')
         disp(strcat(exportfile, ' already exists'));
@@ -117,5 +117,5 @@ function loadBdf(subjectid, bdf, overwrite)
     end
 
     % Export data to mat file
-    save(exportfile, 'ALLEEG', 'EEG', 'CURRENTSET', 'section');
+    save(exportfile, 'ALLEEG', 'EEG', 'CURRENTSET');
 end
