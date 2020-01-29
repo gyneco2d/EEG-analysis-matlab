@@ -9,8 +9,8 @@ function loadBdf(subjectid, bdf, overwrite)
     % Inputs:
     %   subjectid - [string] subject identifier
     %   bdf       - [string] bdf file path
-    %   overwrite - [0/1] 0: return control if mat file already exists
-    %                     1: overwrite even if mat file already exists
+    %   overwrite - [string] overwrite : overwrite even if mat file already exists
+    %                        skip      : return control if mat file already exists
     %
     % Expected bdf file name:
     %   [subjectname][trial_pattern].bdf
@@ -30,10 +30,14 @@ function loadBdf(subjectid, bdf, overwrite)
     if ~exist(bdf, 'file'), error('bdf file does not exist'); end
     [filepath, name, ext] = fileparts(bdf);
     filename = [name ext];
-    if ~exist('overwrite', 'var'), overwrite = 0; end
-    if overwrite ~= 0 && overwrite ~= 1, error('invalid input'); end
+    if ~exist('overwrite', 'var'), overwrite = 'skip'; end
+    if ~strcmp(overwrite, 'overwrite') && ~strcmp(overwrite, 'skip')
+        error('Invalid input for "overwrite"');
+    end
 
-    % Recognize trial patterns from filename
+    % Read filename
+    filenameparts = strsplit(filename, {'HRtoCD', 'CDtoHR'});
+    subjectname = filenameparts(1);
     if contains(filename, 'HRtoCD')
         section = {'baseline1', 'HR', 'CD', 'baseline2'};
         trial = 'HRtoCD';
@@ -44,14 +48,10 @@ function loadBdf(subjectid, bdf, overwrite)
         error('Not the expected file name');
     end
 
-    % Recognize subject name
-    filenameparts = strsplit(filename, {'HRtoCD', 'CDtoHR'});
-    subjectname = filenameparts(1);
-
     % Confirm overwrite
     exportfile = fullfile(ProjectConstants.ProjectRoot, ...
                           strcat(subjectid, '_', trial, '.mat'));
-    if exist(exportfile, 'file') && overwrite == 0
+    if exist(exportfile, 'file') && strcmp(overwrite, 'skip')
         disp(strcat(exportfile, ' already exists'));
         return
     end

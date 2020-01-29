@@ -1,11 +1,11 @@
-function [EEGFREQS] = fftEEGdata(datasetfile)
+function [EEGFREQS] = fftEEGdata(ALLEEG)
     % fftEEGdata() - FFT EEGLAB datasets into structure 'EEGFREQS'
     %
     % Usage:
-    %   >> fftEEGdata( '/Users/gyneco2d/Documents/MATLAB/subject01_HRtoCD.mat' );
+    %   >> fftEEGdata( ALLEEG );
     %
     % Inputs:
-    %   datasetfile - [string] file path where EEGLAB dataset is stored
+    %   ALLEEG - [structure] EEGLAB dataset structure
     %
     % structure array:
     %   EEGFREQS setname                      - dataset name
@@ -19,12 +19,6 @@ function [EEGFREQS] = fftEEGdata(datasetfile)
     %            timeseries_power             - square root of the averaged alpha waves for each fft window
     %            normalized                   - normalized alpha waves (respect to raw average)
     %            normalized_section_power     - normalized section_power (respect to raw average)
-
-    % Load EEG data from .mat file
-    if ~exist(datasetfile, 'file')
-        error('Specify an existing file');
-    end
-    load(datasetfile);
 
     % Import constants
     import('constants.ProjectConstants');
