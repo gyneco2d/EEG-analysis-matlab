@@ -1,13 +1,13 @@
 function createSubjectDatasets(subjectList, overwrite)
-    % createMATfiles() - Generate mat files based on subject list
+    % createSubjectDatasets() - Export analysis results of listed subjects to mat files
     %
     % Usage:
-    %   >> createMATfiles( 'subjectList.dat', 0 );
+    %   >> createSubjectDatasets( 'subjectlist.dat', 'overwrite' );
     %   >> % Generate only BDF for which no mat file exists
     %
     % Inputs:
-    %   subjectList - subject list. see subjectList.dat.example
-    %   overwrite - [string] overwrite : overwrite even if mat file already exists
+    %   subjectList - subject list. see subjectlist.dat.example
+    %   overwrite   - [string] overwrite : overwrite even if mat file already exists
     %                        skip      : return control if mat file already exists
 
     % Import constants
