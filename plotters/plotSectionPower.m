@@ -1,46 +1,54 @@
-function plotSectionPower(AlphaEEG, channel)
-    % plotSectionPower() - Plot original AlphaEEG & detrended AlphaEEG power for each state
+function plotSectionPower(EEGFREQS, channel, wave)
+    % plotSectionPower() - Plot original & detrended EEG power by section
     %
     % Usage:
-    %   >> compareBySection( AlphaEEG, [14:18] );
+    %   >> plotSectionPower( EEGFREQS, [14:18], 'alpha' );
     %
     % Inputs:
-    %   AlphaEEG - [structure] structure created by collectAlphaWaves()
-    %              Requires an AlphaEEG of length 4
+    %   EEGFREQS - [structure] structure created by fftEEGdata()
     %   channel  - [integer array] electrode number used for calculation & plotting
+    %   wave     - [string: 'theta' / 'alpha' / 'beta' / 'gamma'] specify EEG wave to plot
+
+    import('constants.ProjectConstants');
 
     % Confirm args
-    if length(AlphaEEG) ~= 4; error('an AlphaEEG of length 4 required'); end
-    if ~exist('channel', 'var'); channel = [14:18]; end
-
+    if ~exist('channel', 'var')
+        channel = ProjectConstants.OccipitalElectrodes;
+    end
+    if ~exist('wave', 'var'), wave = 'alpha'; end
+    if ~any(strcmp(wave, {'theta', 'alpha', 'beta', 'gamma'}))
+        error('Invalid EEG wave name');
+    end
+    
     sections = [];
-    for section = 1:4
-        sections = [sections mean(AlphaEEG(section).normalized_section_power(channel))];
+    for section = 1:length(EEGFREQS)
+        sections = [sections mean(EEGFREQS(section).(['normalized_section_' wave])(channel))];
     end
     detrended = detrend(sections) + mean(sections);
 
     % Create label for plotting
-    sectionName = [];
-    for section = 1:4
-        setnames = strsplit(AlphaEEG(section).setname, ' - ');
-        sectionName = [sectionName setnames(2)];
+    sectionNames = {};
+    for section = 1:length(EEGFREQS)
+        nameparts = strsplit(EEGFREQS(section).setname, ' - ');
+        sectionNames{length(sectionNames)+1} ...
+            = [char(nameparts(1)), ' - ', char(nameparts(2))];
     end
 
     % Plot the data before detrend
     figure;
-    bar([1:4], sections, 'b');
-    xticks([1:4]);
-    xticklabels(sectionName);
+    bar([1:length(EEGFREQS)], sections, 'b');
+    xticks([1:length(EEGFREQS)]);
+    xticklabels(sectionNames);
     xlabel('State');
     ylabel('Power');
-    title('AlphaEEG power per state');
+    title('EEG wave power per state');
 
     % Plot detrended data
     figure;
-    bar([1:4], detrended, 'g');
-    xticks([1:4]);
-    xticklabels(sectionName);
+    bar([1:length(EEGFREQS)], detrended, 'g');
+    xticks([1:length(EEGFREQS)]);
+    xticklabels(sectionNames);
     xlabel('State');
     ylabel('Power');
-    title('AlphaEEG power per state (detrended)');
+    title('EEG wave power per state (detrended)');
 end
