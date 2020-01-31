@@ -1,54 +1,72 @@
-function plotFreqDistribution(AlphaEEG, channels)
+function plotFreqDistribution(EEGFREQS, channels)
     % plotFreqDistribution() - Plot frequency distribution
     %
     % Usage:
-    %   >> plotFreqDistribution()
+    %   >> plotFreqDistribution( EEGFREQS, [14:18] );
     %
     % Inputs:
-    %   AlphaEEG - [structure] structure created by collectAlpha()
+    %   EEGFREQS - [structure] structure created by fftEEGdata()
     %   channels - [integer array] electrode number used for plotting
 
+    import('constants.ProjectConstants');
+
     % Confirm args
-    if ~exist('channels', 'var'); channels = [14:18]; end
+    if ~exist('channels', 'var')
+        channels = ProjectConstants.OccipitalElectrodes;
+    end
+    
+    % Create figure labels
+    labels = {};
+    for index = 1:length(channels)
+        labels = [labels ['channel' num2str(channels(index))]];
+    end
+    xlimit = [6 15];
+    ylimit = [0 100000];
+    sectionNames = {};
+    for section = 1:length(EEGFREQS)
+        nameparts = strsplit(EEGFREQS(section).setname, ' - ');
+        sectionNames{length(sectionNames)+1} ...
+            = [char(nameparts(1)), ' - ', char(nameparts(2))];
+    end
 
-    import constants.ProjectConstants;
-
-    setname = strsplit(AlphaEEG(1).setname, ' - ');
-    % Plot each channel in each state
-    for section = ProjectConstants.SecondHalfSectionIndex
-        figure('Name', string(setname(1)), 'NumberTitle', 'off');
-        hold on;
+    % Plot each channel in each section
+    for section = 1:length(EEGFREQS)
+        nameparts = strsplit(EEGFREQS(section).setname, ' - ');
+        figure('Name', string(sectionNames(section)), 'NumberTitle', 'off');
+        hold('on');
         for channel = channels
-            plot(AlphaEEG(section).axis, AlphaEEG(section).freq_distribution(channel, :));
+            plot(EEGFREQS(section).axis, EEGFREQS(section).distribution(channel, :));
         end
-        legend(strsplit(num2str(channels), ' '), 'Location', 'northeast');
-        xlim([6 15]);
-        ylim([0 100000]);
+        legend(labels, 'Location', 'northeast');
+        xlim(xlimit);
+        ylim(ylimit);
         xlabel('Frequency[Hz]');
         ylabel('Power[uV]');
-        title(AlphaEEG(section).setname);
+        title(nameparts(2));
     end
 
-    % Plot the channel average for each state
-    figure('Name', string(setname(1)), 'NumberTitle', 'off');
-    hold on;
-    for section = ProjectConstants.SecondHalfSectionIndex
-        avgOfChannels = zeros(32, length(AlphaEEG(section).freq_distribution(1, :)));
+    % Plot the channel average for each datasets
+    subjects = {};
+    for section = 1:length(EEGFREQS)
+        sectionName = strsplit(EEGFREQS(section).setname, ' - ');
+        if length(subjects) == 0 || ~strcmp(subjects(end), sectionName(1))
+            subjects{length(subjects)+1} = cell2mat(sectionName(1));
+        end
+    end
+    figure('Name', cell2mat(join(subjects, ' - ')), 'NumberTitle', 'off');
+    hold('on');
+    for section = 1:length(EEGFREQS)
+        avgOfChannels = zeros(32, length(EEGFREQS(section).distribution(1, :)));
         for channel = channels
-            avgOfChannels = avgOfChannels + AlphaEEG(section).freq_distribution(channel, :);
+            avgOfChannels = avgOfChannels + EEGFREQS(section).distribution(channel, :);
         end
         avgOfChannels = avgOfChannels / length(channels);
-        plot(AlphaEEG(section).axis, avgOfChannels);
+        plot(EEGFREQS(section).axis, avgOfChannels);
     end
-    status = [];
-    for section = ProjectConstants.SecondHalfSectionIndex
-        name = strsplit(AlphaEEG(section).setname, ' - ');
-        status = horzcat(status, name(2));
-    end
-    legend(status, 'Location', 'northeast');
-    xlim([6 15]);
-    ylim([0 100000]);
+    legend(sectionNames, 'Location', 'northeast');
+    xlim(xlimit);
+    ylim(ylimit);
     xlabel('Frequency[Hz]');
     ylabel('Power[uV]');
-    title(append('Compare [', string(setname(1)), '] for each state'));
+    title(append('Compare [', join(subjects, ' - '), '] for each section'));
 end
