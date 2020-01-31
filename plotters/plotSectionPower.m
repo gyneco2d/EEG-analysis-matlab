@@ -1,13 +1,13 @@
-function plotSectionPower(EEGFREQS, channel, wave)
+function plotSectionPower(EEGFREQS, wave, channel)
     % plotSectionPower() - Plot original & detrended EEG power by section
     %
     % Usage:
-    %   >> plotSectionPower( EEGFREQS, [14:18], 'alpha' );
+    %   >> plotSectionPower( EEGFREQS, 'alpha', [14:18] );
     %
     % Inputs:
     %   EEGFREQS - [structure] structure created by fftEEGdata()
-    %   channel  - [integer array] electrode number used for calculation & plotting
     %   wave     - [string: 'theta' / 'alpha' / 'beta' / 'gamma'] specify EEG wave to plot
+    %   channel  - [integer array] electrode number used for calculation & plotting
 
     import('constants.ProjectConstants');
 
@@ -41,7 +41,7 @@ function plotSectionPower(EEGFREQS, channel, wave)
     xticklabels(sectionNames);
     xlabel('State');
     ylabel('Power');
-    title('EEG wave power per state');
+    title([wave ' EEG wave power per state']);
 
     % Plot detrended data
     figure;
@@ -50,5 +50,5 @@ function plotSectionPower(EEGFREQS, channel, wave)
     xticklabels(sectionNames);
     xlabel('State');
     ylabel('Power');
-    title('EEG wave power per state (detrended)');
+    title([wave ' EEG power per state (detrended)']);
 end
