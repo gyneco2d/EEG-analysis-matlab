@@ -1,5 +1,5 @@
-function compareBySection(AlphaEEG, channel)
-    % compareBySection() - Plot original AlphaEEG & detrended AlphaEEG power for each state
+function plotSectionPower(AlphaEEG, channel)
+    % plotSectionPower() - Plot original AlphaEEG & detrended AlphaEEG power for each state
     %
     % Usage:
     %   >> compareBySection( AlphaEEG, [14:18] );
