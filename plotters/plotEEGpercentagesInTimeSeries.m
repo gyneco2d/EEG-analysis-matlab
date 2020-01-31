@@ -50,7 +50,7 @@ function plotEEGpercentagesInTimeSeries(EEGFREQS, wave)
         end
         title('EEG percentage transition');
     else
-        index = strmatch(wave, waves);
+        index = find(strncmp(wave, waves, length(wave)));
         plot(movmean(pctWaves(index, :), ProjectConstants.SmoothingWindowSize));
         title([upper(wave(1)) wave(2:end) ' EEG percentage transition']);
     end
