@@ -25,19 +25,17 @@ function [EEGFREQS] = fftEEGdata(ALLEEG)
     waves = {'theta', 'alpha', 'beta', 'gamma'};
     n = ProjectConstants.BioSemiSamplingRate * ProjectConstants.FFTwindowSize;
     f = (0:n-1)*(ProjectConstants.BioSemiSamplingRate/n);
+    waveIndex = {
+        getIndexOfFreqAxis(ProjectConstants.ThetaWaves, f) ...
+        getIndexOfFreqAxis(ProjectConstants.AlphaWaves, f) ...
+        getIndexOfFreqAxis(ProjectConstants.BetaWaves, f) ...
+        getIndexOfFreqAxis(ProjectConstants.GammaWaves, f)
+    };
     for section = 1:size(ALLEEG, 2)
         totalTime = length(ALLEEG(section).data(1, :)) / ...
                     ProjectConstants.BioSemiSamplingRate;
         nComponent = fix(totalTime - 1);
         stepsize = n / 2;
-        thetaIndex = getIndexOfFreqAxis(ProjectConstants.ThetaWaves, f);
-        alphaIndex = getIndexOfFreqAxis(ProjectConstants.AlphaWaves, f);
-        betaIndex = getIndexOfFreqAxis(ProjectConstants.BetaWaves, f);
-        gammaIndex = getIndexOfFreqAxis(ProjectConstants.GammaWaves, f);
-        thetaEEG = zeros(32, length(thetaIndex)*nComponent);
-        alphaEEG = zeros(32, length(alphaIndex)*nComponent);
-        betaEEG = zeros(32, length(betaIndex)*nComponent);
-        gammaEEG = zeros(32, length(gammaIndex)*nComponent);
 
         % Initialize EEGFREQS structure
         EEGFREQS(section).setname = ALLEEG(section).setname;
@@ -46,14 +44,10 @@ function [EEGFREQS] = fftEEGdata(ALLEEG)
         EEGFREQS(section).timeseries_distribution(nComponent) = {[]};
         EEGFREQS(section).percentage = struct();
         EEGFREQS(section).timeseries_percentage = struct();
-        EEGFREQS(section).section_theta = zeros(32, 1);
-        EEGFREQS(section).section_alpha = zeros(32, 1);
-        EEGFREQS(section).section_beta = zeros(32, 1);
-        EEGFREQS(section).section_gamma = zeros(32, 1);
-        EEGFREQS(section).timeseries_theta = zeros(32, nComponent);
-        EEGFREQS(section).timeseries_alpha = zeros(32, nComponent);
-        EEGFREQS(section).timeseries_beta = zeros(32, nComponent);
-        EEGFREQS(section).timeseries_gamma = zeros(32, nComponent);
+        for wave = waves
+            EEGFREQS(section).(['section_' char(wave)]) = zeros(32, 1);
+            EEGFREQS(section).(['timeseries_' char(wave)]) = zeros(32, nComponent);
+        end
 
         for channel = ProjectConstants.AllElectrodes
             for iComponent = 1:nComponent
@@ -75,28 +69,21 @@ function [EEGFREQS] = fftEEGdata(ALLEEG)
                     };
 
                 % Collect each EEG wave power for each fft window
-                EEGFREQS(section).timeseries_theta(channel, iComponent) = ...
-                    sqrt(mean(power(thetaIndex)));
-                EEGFREQS(section).timeseries_alpha(channel, iComponent) = ...
-                    sqrt(mean(power(alphaIndex)));
-                EEGFREQS(section).timeseries_beta(channel, iComponent) = ...
-                    sqrt(mean(power(betaIndex)));
-                EEGFREQS(section).timeseries_gamma(channel, iComponent) = ...
-                    sqrt(mean(power(gammaIndex)));
+                for iWave = 1:length(waves)
+                    waveRange = cell2mat(waveIndex(iWave));
+                    EEGFREQS(section).(['timeseries_', char(waves(iWave))])(channel, iComponent) = ...
+                        sqrt(mean(power(waveRange)));
+                end
             end
             % Calculate the average frequency distribution between fft window
             EEGFREQS(section).distribution(channel, :) = ...
                 EEGFREQS(section).distribution(channel, :) / nComponent;
 
             % Calculate section average of each EEG wave power
-            EEGFREQS(section).section_theta(channel, 1) = ...
-                mean(EEGFREQS(section).timeseries_theta(channel, :));
-            EEGFREQS(section).section_alpha(channel, 1) = ...
-                mean(EEGFREQS(section).timeseries_alpha(channel, :));
-            EEGFREQS(section).section_beta(channel, 1) = ...
-                mean(EEGFREQS(section).timeseries_beta(channel, :));
-            EEGFREQS(section).section_gamma(channel, 1) = ...
-                mean(EEGFREQS(section).timeseries_gamma(channel, :));
+            for wave = waves
+                EEGFREQS(section).(['section_' char(wave)])(channel, 1) = ...
+                    mean(EEGFREQS(section).(['timeseries_' char(wave)])(channel, :));
+            end
         end
 
         % Calculate the percentage of each EEG
