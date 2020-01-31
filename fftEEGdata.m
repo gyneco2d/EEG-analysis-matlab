@@ -22,6 +22,7 @@ function [EEGFREQS] = fftEEGdata(ALLEEG)
     % Import constants
     import('constants.ProjectConstants');
 
+    waves = {'theta', 'alpha', 'beta', 'gamma'};
     n = ProjectConstants.BioSemiSamplingRate * ProjectConstants.FFTwindowSize;
     f = (0:n-1)*(ProjectConstants.BioSemiSamplingRate/n);
     for section = 1:size(ALLEEG, 2)
@@ -121,12 +122,14 @@ function [EEGFREQS] = fftEEGdata(ALLEEG)
         end
 
         % Create normalized data
-        standard = mean(EEGFREQS(section).timeseries_alpha, 'all');
-        EEGFREQS(section).normalized_timeseries_alpha = ...
-            EEGFREQS(section).timeseries_alpha / standard;
-        for channel = ProjectConstants.AllElectrodes
-            EEGFREQS(section).normalized_section_alpha(channel, 1) = ...
-                mean(EEGFREQS(section).normalized_timeseries_alpha(channel, :));
+        for wave = waves
+            standard = mean(EEGFREQS(section).(['timeseries_' char(wave)]), 'all');
+            EEGFREQS(section).(['normalized_timeseries_' char(wave)]) = ...
+                EEGFREQS(section).(['timeseries_' char(wave)]) / standard;
+            for channel = ProjectConstants.AllElectrodes
+                EEGFREQS(section).(['normalized_section_' char(wave)])(channel, 1) = ...
+                    mean(EEGFREQS(section).(['normalized_timeseries_' char(wave)])(channel, :));
+            end
         end
     end
 end
