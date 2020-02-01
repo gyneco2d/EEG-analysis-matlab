@@ -1,11 +1,11 @@
-function compareWithSPL(AlphaEEG, audiofile, plotchannel)
-    % compareWithSPL() - Plot SPL(sound pressure level) and alpha band power in time series
+function plotTransitionWithSPL(EEGFREQS, audiofile, channel)
+    % plotTransitionWithSPL() - Plot SPL(sound pressure level) and EEG transition
     %
     % Usage:
-    %   >> compareWithSPL()
+    %   >> plotTransitionWithSPL( EEGFREQS, audiofile, channel );
     %
     % Inputs:
-    %   plotchannel - [integer array] electrode number used for plotting
+    %   channel - [integer array] electrode number used for plot
     %
     % Required files:
     %   [mat] - continuous data of listening state
@@ -15,7 +15,9 @@ function compareWithSPL(AlphaEEG, audiofile, plotchannel)
     import('constants.ProjectConstants');
 
     % Confirm args
-    if ~exist('plotchannel', 'var'); plotchannel = [14:18]; end
+    if ~exist('plotchannel', 'var')
+        channel = ProjectConstants.OccipitalElectrodes;
+    end
 
     % Read audio file
     [audio, Fs] = audioread(audiofile);
