@@ -1,5 +1,5 @@
-function compareCollectionBySection(subjectlist, AlphaEEGcollection)
-    % compareCollectionBySection() - 
+function plotAverageSectionPower(subjectlist, AlphaEEGcollection)
+    % plotAverageSectionPower() - 
 
     import('constants.ProjectConstants');
     list = readsubjectlist(subjectlist);
