@@ -1,33 +1,39 @@
-function plotAlphaEEGpercentageTransition(AlphaEEG)
-    % plotAlphaEEGpercentageTransition() - plot subject Alpha EEG percentage transition
+function plotSubjectsEEGpercentageTransition(EEGFREQS, wave)
+    % plotSubjectsEEGpercentageTransition() - plot subject EEG percentage transition
     %
     % Usage:
-    %   >> plotAlphaEEGpercentageTransition( AlphaEEG );
+    %   >> plotSubjectsEEGpercentageTransition( EEGFREQS );
     %
     % Inputs:
-    %   AlphaEEG - [structure] structure created by aggregateSubjectAlphaEEG()
+    %   EEGFREQS - [structure] structure created by fftEEGdata()
+
+    % Confirm args
+    if ~exist('wave', 'var'), wave = 'alpha'; end
+    if ~any(strcmp(wave, {'theta', 'alpha', 'beta', 'gamma'}))
+        error('Invalid EEG wave name');
+    end
 
     trialHRtoCD = figure();
     hold('on');
     trialCDtoHR = figure();
     hold('on');
-    for index = 1:length(AlphaEEG)
-        pctAlpha = [];
-        for component = 1:length(AlphaEEG(index).timeseries_eeg_percentage)
-            pctAlpha = [pctAlpha AlphaEEG(index).timeseries_eeg_percentage(component).alpha];
+    for index = 1:length(EEGFREQS)
+        pctWave = [];
+        for component = 1:length(EEGFREQS(index).timeseries_percentage)
+            pctWave = [pctWave EEGFREQS(index).timeseries_percentage(component).(wave)];
         end
         if mod(index, 2) ~= 0
             figure(trialHRtoCD);
         else
             figure(trialCDtoHR);
         end
-        plot(movmean(pctAlpha, constants.ProjectConstants.SmoothingWindowSize));
+        plot(movmean(pctWave, constants.ProjectConstants.SmoothingWindowSize));
     end
 
     subjects = {};
-    for index = 1:length(AlphaEEG)
+    for index = 1:length(EEGFREQS)
         if mod(index, 2) ~= 0
-            parts = strsplit(AlphaEEG(index).setname, '_');
+            parts = strsplit(EEGFREQS(index).setname, '_');
             subjects = [subjects {char(parts(1))}];
         end
     end
@@ -36,12 +42,12 @@ function plotAlphaEEGpercentageTransition(AlphaEEG)
     ylim([0 100]);
     xlabel('Time');
     ylabel('Percentage [%]');
-    title('[Trial HRtoCD] Alpha EEG percentage transition');
+    title(['[Trial HRtoCD] ' upper(wave(1)) wave(2:end) ' EEG percentage transition']);
 
     figure(trialCDtoHR);
     legend(subjects, 'location', 'northeast');
     ylim([0 100]);
     xlabel('Time');
     ylabel('Percentage [%]');
-    title('[Trial CDtoHR] Alpha EEG percentage transition');
+    title(['[Trial CDtoHR] ' upper(wave(1)) wave(2:end) ' EEG percentage transition']);
 end
