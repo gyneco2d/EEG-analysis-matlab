@@ -1,42 +1,51 @@
-function plotAverageSectionPower(subjectlist, AlphaEEGcollection)
-    % plotAverageSectionPower() - 
+function statusEEG = plotAverageSectionPower(EEGFREQS, wave)
+    % plotAverageSectionPower() - Plot section power average between trials
+    %
+    % Usage:
+    %  >> plotAverageSectionPower( EEGFREQS, 'alpha' );
+    %
+    % Inputs:
+    %   EEGFREQS  - [structure] structure created by fftEEGdata()
+    %   wave      - [string: 'theta' / 'alpha' / 'beta' / 'gamma'] specify EEG wave to plot
 
     import('constants.ProjectConstants');
-    list = readsubjectlist(subjectlist);
 
-    baseline1 = [];
-    hires = [];
-    cdda = [];
-    baseline2 = [];
-
-    channel = [14:18];
-    sectionsPerSubject = 8;
-    sectionsPerTrial = 4;
-    trials = {'HRtoCD', 'CDtoHR'};
-    for subject = 1:size(list, 1)
-        for trial = 1:length(trials)
-            collectionIndex = sectionsPerSubject*(subject-1)+1 + sectionsPerTrial*(trial-1);
-            baseline1 = [baseline1; mean(AlphaEEGcollection(collectionIndex).normalized_section_power(channel))];
-            baseline2 = [baseline2; mean(AlphaEEGcollection(collectionIndex+3).normalized_section_power(channel))];
-            if trial == 1
-                hiresIndex = collectionIndex + 1;
-                cddaIndex = collectionIndex + 2;
-            else
-                cddaIndex = collectionIndex + 1;
-                hiresIndex = collectionIndex + 2;
-            end
-            hires = [hires; mean(AlphaEEGcollection(hiresIndex).normalized_section_power(channel))];
-            cdda = [cdda; mean(AlphaEEGcollection(cddaIndex).normalized_section_power(channel))];
-        end
+    % Confirm args
+    if ~exist('wave', 'var'), wave = 'alpha'; end
+    if ~any(strcmp(wave, {'theta', 'alpha', 'beta', 'gamma'}))
+        error('Invalid EEG wave name');
     end
-    sections = [baseline1 hires cdda baseline2];
-    sections = detrend(sections) + mean(sections);
-    subjectAvg = mean(sections);
-    figure;
-    bar([1:4], subjectAvg);
-    xticks([1:4]);
+
+    % Initialize
+    subjectNames = {};
+    channel = ProjectConstants.OccipitalElectrodes;
+    status = {'baseline1', 'HR', 'CD', 'baseline2'};
+    statusEEG.baseline1 = [];
+    statusEEG.HR = [];
+    statusEEG.CD = [];
+    statusEEG.baseline2 = [];
+
+    for section = 1:size(EEGFREQS, 2)
+        nameparts = strsplit(EEGFREQS(section).setname, ' - ');
+        % Collect subject names
+        if length(subjectNames) == 0 || ~strcmp(subjectNames(end), nameparts(1))
+            subjectNames{length(subjectNames)+1} = cell2mat(nameparts(1));
+        end
+        % Determine section status
+        secStatus = cell2mat(nameparts(2));
+        statusEEG.(secStatus) = [statusEEG.(secStatus) mean(EEGFREQS(section).(['normalized_section_', wave])(channel))];
+    end
+    % Average subject section
+    for s = status
+        statusEEG.(cell2mat(s)) = mean(statusEEG.(cell2mat(s)));
+    end
+
+    % Plot
+    figure();
+    bar([1:length(status)], [statusEEG.baseline1 statusEEG.HR statusEEG.CD statusEEG.baseline2]);
+    xticks([1:length(status)]);
     xticklabels({'Baseline1', 'HR', 'CD', 'Baseline2'});
     xlabel('Section');
     ylabel('Normalized Power');
-    title('Average AlphaEEG power for all subjects');
+    title(['Average ' upper(wave(1)) wave(2:end) ' EEG power for all subjects']);
 end
