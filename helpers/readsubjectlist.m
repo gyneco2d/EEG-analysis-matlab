@@ -7,6 +7,8 @@ function [subjectlist] = readsubjectlist(subjectlistpath)
     % Inputs:
     %   subjectlistpath - [string] path to subjectlist.dat
 
-    subjectlist = readtable(subjectlistpath, 'Format', '%d %s %{dd MMMM yyyy}D %s');
+    subjectlist = readtable(subjectlistpath, ...
+                            'Format', '%d %s %{dd MMMM yyyy}D %s', ...
+                            'DateLocale', 'en-US');
     subjectlist.ExperimentDate.Format = 'yyyyMMdd';
 end
