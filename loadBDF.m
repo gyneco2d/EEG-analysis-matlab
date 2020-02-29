@@ -49,8 +49,9 @@ function loadBDF(subjectid, bdf, overwrite)
     end
 
     % Confirm overwrite
-    exportfile = fullfile(ProjectConstants.ProjectRoot, 'datasets', ...
-                          strcat(subjectid, '_', trial, '.mat'));
+    exportfile = fullfile(...
+                        getEnvHome(), ProjectConstants.RootDir, 'datasets', ...
+                        strcat(subjectid, '_', trial, '.mat'));
     if exist(exportfile, 'file') && strcmp(overwrite, 'skip')
         disp(strcat(exportfile, ' already exists'));
         return

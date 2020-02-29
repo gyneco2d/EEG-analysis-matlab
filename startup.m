@@ -1,3 +1,3 @@
 function startup()
-    cd(constants.ProjectConstants.ProjectRoot);
+    cd(fullfile(getEnvHome(), constants.ProjectConstants.RootDir));
 end

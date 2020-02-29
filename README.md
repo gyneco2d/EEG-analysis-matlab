@@ -1,7 +1,8 @@
 # EEG analysis for Hypersonic Effect
 
 ## Environment
-- macOS Catalina 10.15.2
+- macOS Catalina 10.15.3
+- Windows 10 64bit 1903
 - MATLAB R2019a
 - EEGLAB v2019.1 (MATLAB Toolbox)
 - BioSemi ActiveTwo system (32 electrodes)

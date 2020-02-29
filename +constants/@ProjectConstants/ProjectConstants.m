@@ -15,6 +15,6 @@ classdef ProjectConstants
         SmoothingWindowSize = 30; % [seconds]
         SectionIndex = [2:5];
         SecondHalfSectionIndex = [6:9];
-        ProjectRoot = fullfile(getenv('HOME'), '/Documents/MATLAB/HSE2019_EEG/');
+        RootDir = fullfile('Documents/MATLAB/HSE2019');
     end
 end
